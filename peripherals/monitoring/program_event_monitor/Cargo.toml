@@ -1,0 +1,48 @@
+[package]
+name = "lollys-lotto-event-monitor"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "lollys_lotto_event_monitor"
+path = "src/bin/event_monitor/main.rs"
+
+[[bin]]
+name = "lollys_lotto_event_backfiller"
+path = "src/bin/event_backfiller/main.rs"
+
+[[bin]]
+name = "lollys_lotto_db_reader"
+path = "src/bin/reader/main.rs"
+
+[dependencies]
+tokio = { workspace = true }
+solana-sdk = { workspace = true }
+lollys-lotto = { workspace = true }
+rust_decimal = { workspace = true, features = ["serde"] }
+base64 = { workspace = true }
+regex = { workspace = true }
+futures-util = { workspace = true }
+clap = { workspace = true }
+anyhow = { workspace = true }
+program_monitor_db = { workspace = true }
+solana-client = { workspace = true }
+anchor-lang = { workspace = true }
+spl-associated-token-account = { workspace = true }
+lazy_static = { workspace = true }
+async-trait = { workspace = true }
+futures = { workspace = true }
+serde_json = { workspace = true }
+env_logger = { workspace = true }
+log = { workspace = true }
+solana-transaction-status = { workspace = true }
+csv = { workspace = true }
+chrono = { workspace = true }
+serde = { workspace = true }
+prometheus = { workspace = true }
+hyper = { workspace = true }
+once_cell = { workspace = true }
+

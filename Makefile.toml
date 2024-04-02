@@ -1,0 +1,47 @@
+# cargo-make docs: https://sagiegurari.github.io/cargo-make/
+
+# env_files = [
+#   { path = "./.env" },
+# ]
+
+[config]
+default_to_workspace = false
+skip_core_tasks = true
+
+[env]
+PROGRAM_ID="EQHT3TFXS3hBMzSpJiKb84sHE7iBXnYBpWvQTU8r91m6"
+# This is relative to the ./localnet folder because it is used in integration tests
+USE_LOCAL_PROGRAM_FILE="../target/deploy/lollys_lotto.so"
+RUST_LOG="info"
+
+
+
+# Build the SSLv2 program for release
+[tasks.build_release]
+args = ["build", "-p", "lollys_lotto", "--verifiable"]
+command = "anchor"
+
+[tasks.build_dev]
+args = ["build", "-p", "lollys_lotto", "--", "--features", "debug-msg"]
+command = "anchor"
+
+[tasks.copy_program_key]
+args = [".keys/lollys_lotto-keypair.json", "target/deploy/lollys_lotto-keypair.json"]
+command = "cp"
+
+# Run all tests,
+# requires user input (ENTER to advance)
+# TODO Make possible to skip req ENTER to advance
+[tasks.test_all]
+dependencies = [
+    "build_dev",
+    "copy_program_key",
+    "test_positive_cases",
+]
+
+
+
+# Locally test successful execution of all program instructions
+[tasks.test_positive_cases]
+args = ["test", "--test", "positive_cases"]
+command = "cargo"

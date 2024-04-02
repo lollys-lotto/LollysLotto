@@ -1,0 +1,20 @@
+[package]
+name = "lolly-lotto-localnet"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = { workspace = true }
+anchor-lang = { workspace = true }
+bytemuck = { workspace = true }
+solana-devtools-localnet = { workspace = true }
+solana-devtools-tx = { git = "https://github.com/ebrightfield/solana-devtools" }
+solana-sdk = { workspace = true }
+spl-token = { workspace = true }
+spl-associated-token-account = { workspace = true }
+solana-program = { workspace = true }
+lazy_static = { workspace = true }
+lollys-lotto = { workspace = true }
+lollys-lotto-rust-sdk = { workspace = true }

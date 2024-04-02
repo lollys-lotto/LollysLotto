@@ -1,0 +1,48 @@
+env_files = [
+    { path = "env.local", profile = "development" },
+    { path = "env.mainnet", profile = "mainnet" },
+    { path = "env.local_using_mainnet", profile = "development_target_mainnet" }
+]
+
+[config]
+default_to_workspace = false
+skip_core_tasks = true
+
+[tasks.test_db]
+args = ["test", "-p", "program_monitor_db"]
+command = "cargo"
+dependencies = [
+    "drop_db",
+    "setup_db",
+]
+
+[tasks.rebuild_db]
+dependencies = [
+    "drop_db",
+    "setup_db",
+]
+
+[tasks.setup_db]
+args = ["database", "setup"]
+command = "sqlx"
+
+[tasks.drop_db]
+args = ["database", "drop"]
+command = "sqlx"
+
+[tasks.run_event_monitor]
+args = ["run", "-p", "lollys-lotto-event-monitor", "--bin", "lollys_lotto_event_monitor"]
+command = "cargo"
+
+[tasks.build_event_monitor]
+args = ["build", "-p", "lollys-lotto-event-monitor", "--bin", "lollys_lotto_event_monitor"]
+command = "cargo"
+
+[tasks.run_event_backfiller]
+args = ["run", "-p", "lollys-lotto-event-monitor", "--bin", "lollys_lotto_event_backfiller"]
+command = "cargo"
+
+[tasks.build_event_backfiller]
+args = ["build", "-p", "lollys-lotto-event-monitor", "--bin", "lollys_lotto_event_backfiller"]
+command = "cargo"
+

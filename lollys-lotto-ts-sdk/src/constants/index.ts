@@ -1,0 +1,1 @@
+export * from "./lollys_lotto"
