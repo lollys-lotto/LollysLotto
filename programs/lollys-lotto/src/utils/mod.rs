@@ -1,3 +1,3 @@
-pub  mod switchboard;
+pub mod switchboard;
 
 pub use switchboard::*;

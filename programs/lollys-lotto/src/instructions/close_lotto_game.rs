@@ -1,6 +1,10 @@
 pub use anchor_lang::prelude::*;
 
-use crate::{errors::LollyError, pda_identifier::PDAIdentifier, state::{LottoGame, LottoGameState}};
+use crate::{
+    errors::LollyError,
+    pda_identifier::PDAIdentifier,
+    state::{LottoGame, LottoGameState},
+};
 
 #[derive(Accounts)]
 pub struct CloseLottoGame<'info> {
@@ -23,10 +27,9 @@ pub struct CloseLottoGame<'info> {
     pub lotto_game: Box<Account<'info, LottoGame>>,
 
     pub system_program: Program<'info, System>,
-
 }
 
-impl <'info> CloseLottoGame<'info> {
+impl<'info> CloseLottoGame<'info> {
     pub fn process(&self) -> Result<()> {
         Ok(())
     }

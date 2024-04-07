@@ -1,12 +1,13 @@
 use anchor_lang::prelude::*;
-use solana_randomness_service::TransactionOptions;
 use solana_randomness_service::program::SolanaRandomnessService;
+use solana_randomness_service::TransactionOptions;
 use switchboard_solana::prelude::*;
 use switchboard_solana::utils::get_ixn_discriminator;
 
 use crate::pda_identifier::PDAIdentifier;
-use crate::state::{EventEmitter, LollysLottoEventData, LottoGame, RequestWinningNumbersEvent};
-
+use crate::state::{
+    EventEmitter, LollysLottoProgramEventData, LottoGame, RequestWinningNumbersEvent,
+};
 
 #[derive(Accounts)]
 pub struct RequestWinningNumbers<'info> {
@@ -66,7 +67,7 @@ pub struct RequestWinningNumbers<'info> {
 
     #[account(mut)]
     pub event_emitter: Box<Account<'info, EventEmitter>>,
-    
+
     /// The Solana System program. Used to allocate space on-chain for the randomness_request account.
     pub system_program: Program<'info, System>,
 
@@ -78,7 +79,7 @@ pub struct RequestWinningNumbers<'info> {
 }
 
 pub fn request_winning_numbers(
-    ctx: Context<RequestWinningNumbers>, 
+    ctx: Context<RequestWinningNumbers>,
 ) -> anchor_lang::prelude::Result<()> {
     msg!("Requesting randomness...");
 
@@ -94,10 +95,7 @@ pub fn request_winning_numbers(
                 payer: ctx.accounts.payer.to_account_info(),
                 system_program: ctx.accounts.system_program.to_account_info(),
                 token_program: ctx.accounts.token_program.to_account_info(),
-                associated_token_program: ctx
-                    .accounts
-                    .associated_token_program
-                    .to_account_info(),
+                associated_token_program: ctx.accounts.associated_token_program.to_account_info(),
             },
         ),
         6, // Request 8 bytes of randomness
@@ -124,8 +122,8 @@ pub fn request_winning_numbers(
     let clock = Clock::get()?;
     let block_time = clock.unix_timestamp;
     event_emitter.emit_new_event(
-        Some(block_time), 
-        LollysLottoEventData::RequestWinningNumbers(RequestWinningNumbersEvent {
+        Some(block_time),
+        LollysLottoProgramEventData::RequestWinningNumbers(RequestWinningNumbersEvent {
             round: lotto_game.round,
         }),
     )?;

@@ -2,16 +2,27 @@
   "name": "lollys-lotto-ts-sdk",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "tsc",
+    "watch": "tsc --noEmit --watch",
+    "codegen": "anchor-client-gen ./src/idl/lollys_lotto.json ./src/codegen"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@solana/web3.js": "^1.91.4",
     "typescript": "^5.4.3",
-    "@solana/web3.js": "^1.75.0"
+    "@coral-xyz/anchor": "^0.29.0",
+    "@coral-xyz/borsh": "^0.29.0",
+    "@types/bn.js": "^5.1.1",
+    "@types/node-fetch": "^2.6.4",
+    "bn.js": "^5.2.1"
+  },
+  "dependencies": {
+    "anchor-client-gen": "^0.28.1"
   }
 }

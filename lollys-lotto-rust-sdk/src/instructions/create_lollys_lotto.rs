@@ -7,12 +7,13 @@ pub fn create_lollys_lotto(
 ) -> Instruction {
     let data = lollys_lotto::instruction::CreateLollysLotto.data();
 
-    let accounts = lollys_lotto::accounts::CreateLollysLotto{
+    let accounts = lollys_lotto::accounts::CreateLollysLotto {
         authority: *authority,
         lollys_lotto: *lollys_lotto,
         event_emitter: *event_emitter,
         system_program: system_program::ID,
-    }.to_account_metas(None);
+    }
+    .to_account_metas(None);
     Instruction {
         program_id: lollys_lotto::ID,
         accounts,

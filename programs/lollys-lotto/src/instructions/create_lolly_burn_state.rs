@@ -4,7 +4,11 @@ use anchor_spl::{
     token::{Mint, Token, TokenAccount},
 };
 
-use crate::{constants::{LOLLY_MINT, USDC_MINT_DEVNET}, pda_identifier::PDAIdentifier, state::*};
+use crate::{
+    constants::{LOLLY_MINT, USDC_MINT_DEVNET},
+    pda_identifier::PDAIdentifier,
+    state::*,
+};
 
 #[derive(Accounts)]
 pub struct CreateLollyBurnState<'info> {
@@ -16,13 +20,13 @@ pub struct CreateLollyBurnState<'info> {
     /// LollyBurnState instance to be created
     // lolly_burn_state account is a PDA signer all the swap, burn CPIs. It is the PDA which will receive USDC fees to its USDC ATA
     #[account(
-        init, 
-        payer = payer, 
+        init,
+        payer = payer,
         seeds=[
-            LollyBurnState::IDENT, 
+            LollyBurnState::IDENT,
             authority.key().as_ref()
-        ], 
-        bump, 
+        ],
+        bump,
         space = 8 + std::mem::size_of::<LollyBurnState>()
     )]
     lolly_burn_state: Box<Account<'info, LollyBurnState>>,
@@ -63,4 +67,3 @@ impl<'info> CreateLollyBurnState<'info> {
         Ok(())
     }
 }
-

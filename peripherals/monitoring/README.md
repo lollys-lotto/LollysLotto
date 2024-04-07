@@ -1,9 +1,9 @@
 ## Program Event Monitor
-This folder hosts the crates responsible for monitoring the SSLv2 program.
+This folder hosts the crates responsible for monitoring the LollysLotto program.
 - `program_monitor_db` -- A `lib` crate that defines a Postgres database. This database schema is also maintained as pure SQL in the `migrations` folder.
 - `program_event_monitor` -- A `bin` crate with several entrypoints, each of which perform some aspect of the monitoring:
-  - `event_monitor` -- Watches on a Solana RPC Websocket `logs_subscribe` for Anchor `Event` data on the SSLv2 protocol, and inserts the data into a Postgres instance.
-  - `backfiller` -- Backfills the data in a Postgres instance by combing for transactions on the SSLv2 program, and using recorded `event_id` values to spot any gaps in the data.
+  - `event_monitor` -- Watches on a Solana RPC Websocket `logs_subscribe` for Anchor `Event` data on the LollysLotto program, and inserts the data into a Postgres instance.
+  - `backfiller` -- Backfills the data in a Postgres instance by combing for transactions on the LollysLotto program, and using recorded `event_id` values to spot any gaps in the data.
 
 ## Setup and Testing
 ### Setup

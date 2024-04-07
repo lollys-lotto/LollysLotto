@@ -14,8 +14,6 @@ lazy_static! {
     pub static ref TEST_USER_KEYPAIR: Keypair = Keypair::new();
 }
 
-
-
 /// Test pool registry admin, mint authority for all mints,
 /// owner of fee destination accounts, etc.
 pub struct TestUser;
@@ -29,7 +27,6 @@ impl GeneratedAccount for TestUser {
     fn generate(&self) -> Self::Data {
         SystemAccount
     }
-
 
     fn lamports(&self) -> u64 {
         THOUSAND_SOL

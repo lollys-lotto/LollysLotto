@@ -1,25 +1,20 @@
 CREATE TYPE instruction_type AS ENUM (
-  'deposit',
-  'withdraw',
-  'claim_fees',
-  'create_liquidity_account',
-  'close_liquidity_account',
-  'swap',
-  'internal_swap',
-  'create_pool_registry',
-  'config_pool_registry',
-  'config_suspend_admin',
-  'suspend_ssl',
-  'create_ssl',
-  'config_ssl',
-  'create_pair',
-  'config_pair',
-  'crank_oracle_price_histories'
-);
-
-CREATE TYPE oracle_type as ENUM (
-  'pyth',
-  'switchboard'
+  'process_winning_numbers',
+  'request_winning_numbers',
+  'test_emit_winning_numbers',
+  'burn_lolly',
+  'buy_lotto_ticket',
+  'claim_user_rewards',
+  'close_event_emitter',
+  'close_lollys_lotto',
+  'close_lotto_game',
+  'crank_lotto_game_winner',
+  'create_event_emitter',
+  'create_lolly_burn_state',
+  'create_lollys_lotto',
+  'create_user_metadata',
+  'start_lotto_game',
+  'swap_usdc_lolly'
 );
 
 CREATE TABLE IF NOT EXISTS program_events (

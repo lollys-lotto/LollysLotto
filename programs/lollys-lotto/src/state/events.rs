@@ -1,6 +1,6 @@
-use anchor_lang::prelude::*;
-use crate::pda_identifier::PDAIdentifier;
 use super::LottoGameState;
+use crate::pda_identifier::PDAIdentifier;
+use anchor_lang::prelude::*;
 
 const CURRENT_EVENT_VERSION: u8 = 0;
 
@@ -35,10 +35,10 @@ impl EventEmitter {
     pub fn emit_new_event(
         &mut self,
         block_time: Option<i64>,
-        data: LollysLottoEventData,
+        data: LollysLottoProgramEventData,
     ) -> Result<()> {
         let block_time = block_time.unwrap_or(Clock::get()?.unix_timestamp);
-        let event = LollysLottoEvent {
+        let event = LollysLottoProgramEvent {
             event_id: self.event_id.clone(),
             version: CURRENT_EVENT_VERSION,
             block_time,
@@ -73,13 +73,13 @@ pub enum ProgramInstruction {
 
 /// Created with `EventSigner::new_event()`.
 #[event]
-pub struct LollysLottoEvent {
+pub struct LollysLottoProgramEvent {
     event_id: i64,
     version: u8,
     block_time: i64,
-    pub data: LollysLottoEventData,
+    pub data: LollysLottoProgramEventData,
 }
-impl LollysLottoEvent {
+impl LollysLottoProgramEvent {
     pub fn event_id(&self) -> i64 {
         self.event_id
     }
@@ -93,35 +93,24 @@ impl LollysLottoEvent {
     }
 }
 
-/// The inner data of an [LollysLottoEvent]
+/// The inner data of an [LollysLottoProgramEvent]
 #[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
-pub enum LollysLottoEventData {
-    ProcessWinningNumbers(ProcessWinningNumbersEvent),
-    RequestWinningNumbers(RequestWinningNumbersEvent),
+pub enum LollysLottoProgramEventData {
     BurnLolly(BurnLollyEvent),
     BuyLottoTicket(BuyLottoTicketEvent),
+    ClaimUserRewards(ClaimUserRewardsEvent),
+    CloseEventEmitter(CloseEventEmitterEvent),
+    CloseLollysLotto(CloseLollysLottoEvent),
+    CloseLottoGame(CloseLottoGameEvent),
     CrankLottoGameWinner(CrankLottoGameWinnerEvent),
     CreateLollyBurnState(CreateLollyBurnStateEvent),
     CreateLollysLotto(CreateLollysLottoEvent),
     CreateUserMetadata(CreateUserMetadataEvent),
     StartLottoGame(StartLottoGameEvent),
     SwapUsdcLolly(SwapUsdcLollyEvent),
-}
-
-/// Event emitted when a user consumes randomness.
-/// This is a placeholder event, and will be replaced with a more
-/// meaningful event in the future.
-#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
-pub struct ProcessWinningNumbersEvent {
-    pub round: u64,
-    pub randomness: Vec<u8>,
-}
-
-/// Event emitted when a user requests randomness.
-
-#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
-pub struct RequestWinningNumbersEvent {
-    pub round: u64,
+    ProcessWinningNumbers(ProcessWinningNumbersEvent),
+    RequestWinningNumbers(RequestWinningNumbersEvent),
+    TestEmitWinningNumbers(TestEmitWinningNumbersEvent),
 }
 
 /// Event emitted when a user burns a lolly.
@@ -145,6 +134,29 @@ pub struct BuyLottoTicketEvent {
     pub numbers: [u8; 6],
 }
 
+#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
+pub struct ClaimUserRewardsEvent {
+    pub user: Pubkey,
+    pub user_metadata: Pubkey,
+    pub user_rewards_vault: Pubkey,
+    pub amount_to_be_claimed: u64,
+}
+
+#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
+pub struct CloseEventEmitterEvent {
+    pub event_emitter: Pubkey,
+}
+
+#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
+pub struct CloseLollysLottoEvent {
+    pub lollys_lotto: Pubkey,
+}
+
+#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
+pub struct CloseLottoGameEvent {
+    pub lotto_game: Pubkey,
+    pub round: u64,
+}
 /// Event emitted when a user cranks a lotto game winner.
 #[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
 pub struct CrankLottoGameWinnerEvent {
@@ -197,3 +209,26 @@ pub struct SwapUsdcLollyEvent {
     pub lolly: Pubkey,
 }
 
+/// Event emitted when a user consumes randomness.
+/// This is a placeholder event, and will be replaced with a more
+/// meaningful event in the future.
+#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
+pub struct ProcessWinningNumbersEvent {
+    pub round: u64,
+    pub randomness: Vec<u8>,
+}
+
+/// Event emitted when a user requests randomness.
+
+#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
+pub struct RequestWinningNumbersEvent {
+    pub round: u64,
+}
+
+/// Test Event emitted when a user requests randomness.
+
+#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
+pub struct TestEmitWinningNumbersEvent {
+    pub round: u64,
+    pub randomness: Vec<u8>,
+}

@@ -14,7 +14,6 @@ lazy_static! {
     pub static ref TEST_ADMIN_KEYPAIR: Keypair = Keypair::new();
 }
 
-
 /// This is only the user for which we test constructing a new pool registry.
 /// [TestAdmin] is the actual admin for all pre-existing accounts.
 pub struct TestAdmin;
@@ -59,4 +58,3 @@ impl GeneratedAccount for TestAdminUsdc {
         spl_token::ID
     }
 }
-

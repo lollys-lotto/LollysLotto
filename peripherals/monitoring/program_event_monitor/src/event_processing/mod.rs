@@ -18,11 +18,11 @@ use crate::{
     log_parsing::LoggedTransactionFailure,
 };
 use anyhow::{anyhow, Result};
-use lollys_lotto::{SSLProgramEvent, SSLProgramEventData};
 use log::info;
+use lollys_lotto::{SSLProgramEvent, SSLProgramEventData};
 use program_monitor_db::{
     utils::type_conversions::i64_to_naive_datetime, Database, FailedProgramEventRow,
-    InstructionType, ProgramEventRow, SSLv2DatabaseError,
+    InstructionType, LollysLottoDatabaseError, ProgramEventRow,
 };
 use solana_sdk::{clock::Slot, signature::Signature, transaction::TransactionError};
 use std::sync::Arc;
@@ -205,7 +205,7 @@ async fn insert_program_event(
         .await
     {
         Ok(row) => Ok(Some(row)),
-        Err(SSLv2DatabaseError::DuplicateKeyValue(constraint, e)) => {
+        Err(LollysLottoDatabaseError::DuplicateKeyValue(constraint, e)) => {
             info!(
                 "skipping duplicate event {} {:?} {} due to constraint {}: {}",
                 event_id, ix_type, transaction_signature, constraint, e,
@@ -245,7 +245,7 @@ async fn insert_failed_program_event(
         .await
     {
         Ok(row) => Ok(Some(row)),
-        Err(SSLv2DatabaseError::DuplicateKeyValue(constraint, e)) => {
+        Err(LollysLottoDatabaseError::DuplicateKeyValue(constraint, e)) => {
             info!(
                 "skipping duplicate failed event {} {:?} {} due to constraint {}: {}",
                 event_id, ix_type, transaction_signature, constraint, e,

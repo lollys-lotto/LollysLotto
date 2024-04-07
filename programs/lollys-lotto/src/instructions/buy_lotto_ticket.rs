@@ -1,7 +1,18 @@
 pub use anchor_lang::prelude::*;
-use anchor_spl::{associated_token::AssociatedToken, token::{self, Token, Mint, TokenAccount, Transfer}};
+use anchor_spl::{
+    associated_token::AssociatedToken,
+    token::{self, Mint, Token, TokenAccount, Transfer},
+};
 
-use crate::{constants::USDC_MINT_DEVNET, errors::LollyError, pda_identifier::PDAIdentifier, state::{BuyLottoTicketEvent, EventEmitter, LollysLottoEventData, LottoGame, LottoGameState, LottoGameVault, LottoTicket, UserMetadata}};
+use crate::{
+    constants::USDC_MINT_DEVNET,
+    errors::LollyError,
+    pda_identifier::PDAIdentifier,
+    state::{
+        BuyLottoTicketEvent, EventEmitter, LollysLottoProgramEventData, LottoGame, LottoGameState,
+        LottoGameVault, LottoTicket, UserMetadata,
+    },
+};
 
 #[derive(Accounts)]
 #[instruction(round: u64, numbers: [u8; 6])]
@@ -60,9 +71,9 @@ pub struct BuyLottoTicket<'info> {
     pub lotto_game_vault: Box<Account<'info, TokenAccount>>,
 
     #[account(
-        init, 
-        payer = user, 
-        space = 8 + std::mem::size_of::<LottoTicket>(), 
+        init,
+        payer = user,
+        space = 8 + std::mem::size_of::<LottoTicket>(),
         seeds = [
             LottoTicket::IDENT,
             lotto_game.key().as_ref(),
@@ -73,14 +84,14 @@ pub struct BuyLottoTicket<'info> {
             numbers[3].to_le_bytes().as_ref(),
             numbers[4].to_le_bytes().as_ref(),
             numbers[5].to_le_bytes().as_ref(),
-        ], 
+        ],
         bump
     )]
     pub lotto_ticket: Box<Account<'info, LottoTicket>>,
 
     #[account(mut)]
     pub event_emitter: Box<Account<'info, EventEmitter>>,
-    
+
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
@@ -145,8 +156,8 @@ impl<'info> BuyLottoTicket<'info> {
         let block_time = clock.unix_timestamp;
 
         self.event_emitter.emit_new_event(
-            Some(block_time), 
-            LollysLottoEventData::BuyLottoTicket(BuyLottoTicketEvent {
+            Some(block_time),
+            LollysLottoProgramEventData::BuyLottoTicket(BuyLottoTicketEvent {
                 user: *self.user.key,
                 user_metadata: user_metadata.key(),
                 user_ticket_count: user_metadata.total_tickets_purchased,

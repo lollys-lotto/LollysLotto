@@ -9,17 +9,13 @@ pub fn buy_lotto_ticket(
     user_usdc_token_account: &Pubkey,
     lotto_game_mint: &Pubkey,
     lotto_game: &Pubkey,
-    lotto_game_vault: &Pubkey, 
+    lotto_game_vault: &Pubkey,
     lotto_ticket: &Pubkey,
     event_emitter: &Pubkey,
-    
 ) -> Instruction {
-    let data = lollys_lotto::instruction::BuyLottoTicket{
-        round,
-        numbers,
-    }.data();
+    let data = lollys_lotto::instruction::BuyLottoTicket { round, numbers }.data();
 
-    let accounts = lollys_lotto::accounts::BuyLottoTicket{
+    let accounts = lollys_lotto::accounts::BuyLottoTicket {
         authority: *authority,
         user: *user,
         user_metadata: *user_metadata,
@@ -32,7 +28,8 @@ pub fn buy_lotto_ticket(
         token_program: token::ID,
         associated_token_program: associated_token::ID,
         system_program: system_program::ID,
-    }.to_account_metas(None);
+    }
+    .to_account_metas(None);
 
     Instruction {
         program_id: lollys_lotto::id(),

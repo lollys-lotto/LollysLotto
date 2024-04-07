@@ -1,7 +1,7 @@
 pub mod data_types;
 pub mod query_types;
 
-use crate::{Result, SSLv2DatabaseError};
+use crate::{LollysLottoDatabaseError, Result};
 use log::info;
 use sqlx::{
     postgres::{PgArguments, PgConnectOptions, PgQueryResult, PgRow, PgSslMode},
@@ -27,7 +27,7 @@ impl Database {
         let pool = if let Some(ssl_cert) = ssl_cert {
             let options = PgConnectOptions::from_str(url)
                 .map_err(|e| {
-                    SSLv2DatabaseError::InvalidDatabaseUrl(url.to_string(), e.to_string())
+                    LollysLottoDatabaseError::InvalidDatabaseUrl(url.to_string(), e.to_string())
                 })?
                 .ssl_root_cert(Path::new(ssl_cert))
                 .ssl_mode(PgSslMode::Require);
@@ -39,7 +39,7 @@ impl Database {
             info!("Successfully connected to Postgres DB");
             pool
         })
-        .map_err(|e| SSLv2DatabaseError::DatabaseConnectionError(e))?;
+        .map_err(|e| LollysLottoDatabaseError::DatabaseConnectionError(e))?;
         Ok(Self { pool })
     }
 

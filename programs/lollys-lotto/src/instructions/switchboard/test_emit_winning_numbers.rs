@@ -1,12 +1,19 @@
 use anchor_lang::prelude::*;
 
-use crate::{errors::LollyError, pda_identifier::PDAIdentifier, state::{EventEmitter, LollysLottoEventData, LottoGame, LottoGameState, ProcessWinningNumbersEvent}};
+use crate::{
+    errors::LollyError,
+    pda_identifier::PDAIdentifier,
+    state::{
+        EventEmitter, LollysLottoProgramEventData, LottoGame, LottoGameState,
+        ProcessWinningNumbersEvent,
+    },
+};
 
 #[derive(Accounts)]
 pub struct TestEmitWinningNumbers<'info> {
     /// CHECK: Authority of the LottoGame instance
     pub authority: AccountInfo<'info>,
-    
+
     #[account(
         mut,
         has_one = authority,
@@ -25,7 +32,7 @@ pub struct TestEmitWinningNumbers<'info> {
 }
 
 pub fn test_emit_winning_numbers(
-    ctx: Context<TestEmitWinningNumbers>, 
+    ctx: Context<TestEmitWinningNumbers>,
     result: Vec<u8>,
 ) -> Result<()> {
     msg!("Randomness received: {:?}", result);
@@ -36,8 +43,8 @@ pub fn test_emit_winning_numbers(
     let clock = Clock::get()?;
     let block_time = clock.unix_timestamp;
     event_emitter.emit_new_event(
-        Some(block_time), 
-        LollysLottoEventData::ProcessWinningNumbers(ProcessWinningNumbersEvent {
+        Some(block_time),
+        LollysLottoProgramEventData::ProcessWinningNumbers(ProcessWinningNumbersEvent {
             round: lotto_game.round,
             randomness: result,
         }),

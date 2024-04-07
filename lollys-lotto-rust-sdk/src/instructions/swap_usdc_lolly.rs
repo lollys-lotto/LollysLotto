@@ -8,9 +8,7 @@ pub fn swap_usdc_lolly(
     lolly_burn_state_lolly_vault: &Pubkey,
     jupiter_program_id: &Pubkey,
 ) -> Instruction {
-    let data = lollys_lotto::instruction::SwapUsdcLolly{
-        data,
-    }.data();
+    let data = lollys_lotto::instruction::SwapUsdcLolly { data }.data();
     let accounts = lollys_lotto::accounts::SwapUsdcLolly {
         authority: *authority,
         lolly_burn_state: *lollys_burn_state,
@@ -20,7 +18,8 @@ pub fn swap_usdc_lolly(
         token_program: token::ID,
         associated_token_program: associated_token::ID,
         system_program: system_program::ID,
-    }.to_account_metas(None);
+    }
+    .to_account_metas(None);
     Instruction {
         program_id: lollys_lotto::ID,
         accounts,

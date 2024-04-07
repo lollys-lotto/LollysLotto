@@ -1,15 +1,8 @@
 pub mod mints;
-pub mod user_accounts;
 pub mod state;
 pub mod traits;
-pub use crate::{
-    mints::*, 
-    user_accounts::*, 
-    state::{
-        TestEventEmitter, 
-        // TestUserMetadata,
-    },
-};
+pub mod user_accounts;
+pub use crate::{mints::*, state::TestEventEmitter, user_accounts::*};
 use anchor_lang::solana_program::instruction::Instruction;
 use solana_devtools_localnet::{GeneratedAccount, LocalnetConfiguration};
 use solana_sdk::{compute_budget::ComputeBudgetInstruction, pubkey};

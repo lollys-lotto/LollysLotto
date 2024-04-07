@@ -9,7 +9,7 @@ pub fn create_user_metadata(
 ) -> Instruction {
     let data = lollys_lotto::instruction::CreateUserMetadata.data();
 
-    let accounts = lollys_lotto::accounts::CreateUserMetadata{
+    let accounts = lollys_lotto::accounts::CreateUserMetadata {
         user: *user,
         user_metadata: *user_metadata,
         usdc_mint: *usdc_mint,
@@ -18,7 +18,8 @@ pub fn create_user_metadata(
         token_program: token::ID,
         associated_token_program: associated_token::ID,
         system_program: system_program::ID,
-    }.to_account_metas(None);
+    }
+    .to_account_metas(None);
     Instruction {
         program_id: lollys_lotto::ID,
         accounts,

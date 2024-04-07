@@ -1,11 +1,14 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{Mint, Token, TokenAccount};
 use anchor_spl::associated_token::AssociatedToken;
+use anchor_spl::token::{Mint, Token, TokenAccount};
 
 use crate::constants::USDC_MINT_DEVNET;
 use crate::errors::LollyError;
 use crate::pda_identifier::PDAIdentifier;
-use crate::state::{EventEmitter, LollysLotto, LollysLottoEventData, LottoGame, LottoGameState, LottoGameVault, StartLottoGameEvent};
+use crate::state::{
+    EventEmitter, LollysLotto, LollysLottoProgramEventData, LottoGame, LottoGameState,
+    LottoGameVault, StartLottoGameEvent,
+};
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct StartLottoGameParams {
@@ -68,10 +71,10 @@ pub struct StartLottoGame<'info> {
         address = USDC_MINT_DEVNET,
     )]
     pub lotto_game_mint: Box<Account<'info, Mint>>,
-    
+
     #[account(mut)]
     pub event_emitter: Box<Account<'info, EventEmitter>>,
-    
+
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
@@ -79,13 +82,13 @@ pub struct StartLottoGame<'info> {
 
 impl<'info> StartLottoGame<'info> {
     pub fn process(
-        &mut self, 
+        &mut self,
         bump: u8,
         lotto_game_vault_bump: u8,
-        round: u64, 
-        ticket_price: u64, 
-        game_duration: u64, 
-        round_name: String
+        round: u64,
+        ticket_price: u64,
+        game_duration: u64,
+        round_name: String,
     ) -> Result<()> {
         let lotto_game = &mut self.lotto_game;
         let lollys_lotto = &mut self.lollys_lotto;
@@ -93,7 +96,6 @@ impl<'info> StartLottoGame<'info> {
         if round != lollys_lotto.lotto_game_count {
             return Err(LollyError::RoundNumbersAreSequential.into());
         }
-
 
         lotto_game.bump = bump;
         lotto_game.lotto_game_vault_bump = lotto_game_vault_bump;
@@ -115,8 +117,8 @@ impl<'info> StartLottoGame<'info> {
         let block_time = clock.unix_timestamp;
 
         self.event_emitter.emit_new_event(
-            Some(block_time), 
-            LollysLottoEventData::StartLottoGame(StartLottoGameEvent {
+            Some(block_time),
+            LollysLottoProgramEventData::StartLottoGame(StartLottoGameEvent {
                 round: lotto_game.round,
                 round_name,
                 game_duration,

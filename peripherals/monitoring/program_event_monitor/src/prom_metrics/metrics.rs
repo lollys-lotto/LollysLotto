@@ -1,10 +1,10 @@
 use futures::{future::ready, FutureExt};
-use lollys_lotto::{sdk::constants::ConstMint, Pair};
 use hyper::{
     server::Server,
     service::{make_service_fn, service_fn},
     Body, Response,
 };
+use lollys_lotto::{sdk::constants::ConstMint, Pair};
 use once_cell::sync::Lazy;
 use program_monitor_db::Database;
 use prometheus::{
@@ -16,14 +16,14 @@ use std::{convert::Infallible, net::SocketAddr};
 use crate::address_calculator::AddressCalculator;
 
 /// Define the custom registry and all metrics as Lazy static variables
-pub static SSL_METRICS_REGISTRY: Lazy<Registry> = Lazy::new(Registry::new);
+pub static LOLLYS_METRICS_REGISTRY: Lazy<Registry> = Lazy::new(Registry::new);
 
 /// Helper function to register metrics with the custom registry
 fn register_metric<'a>(name: &'a str, description: &'a str, labels: &[&str]) -> GaugeVec {
     register_gauge_vec_with_registry!(
         opts!(name, description),
         labels,
-        SSL_METRICS_REGISTRY.clone()
+        LOLLYS_METRICS_REGISTRY.clone()
     )
     .expect("metric registration failed")
 }

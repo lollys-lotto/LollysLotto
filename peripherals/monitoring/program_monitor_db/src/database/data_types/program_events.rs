@@ -6,7 +6,7 @@ use crate::{
         u8_to_i16,
     },
 };
-use lollys_lotto::{SSLProgramEvent, SSLProgramEventData};
+use lollys_lotto::state::{LollysLottoProgramEvent, LollysLottoProgramEventData};
 use serde::{Deserialize, Serialize};
 use solana_sdk::{pubkey::Pubkey, signature::Signature};
 use sqlx::{query_as, types::chrono::NaiveDateTime};
@@ -16,35 +16,53 @@ use std::str::FromStr;
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, sqlx::Type)]
 #[sqlx(type_name = "instruction_type", rename_all = "snake_case")]
 pub enum InstructionType {
-    Deposit,
-    Withdraw,
-    ClaimFees,
-    CreateLiquidityAccount,
-    CloseLiquidityAccount,
-    Swap,
-    InternalSwap,
-    CreatePoolRegistry,
-    ConfigPoolRegistry,
-    CreateSSL,
-    ConfigSSL,
-    CreatePair,
-    ConfigPair,
-    ConfigSuspendAdmin,
-    SuspendSsl,
+    BurnLolly,
+    BuyLottoTicket,
+    ClaimUserRewards,
+    CloseEventEmitter,
+    CloseLollysLotto,
+    CloseLottoGame,
+    CrankLottoGameWinner,
+    CreateLollyBurnState,
+    CreateLollysLotto,
+    CreateUserMetadata,
+    StartLottoGame,
+    SwapUsdcLolly,
+    ProcessWinningNumbers,
+    RequestWinningNumbers,
+    TestEmitWinningNumbers,
 }
 
-impl From<&SSLProgramEvent> for InstructionType {
-    fn from(value: &SSLProgramEvent) -> Self {
+impl From<&LollysLottoProgramEvent> for InstructionType {
+    fn from(value: &LollysLottoProgramEvent) -> Self {
         match value.data {
-            SSLProgramEventData::Deposit(_) => InstructionType::Deposit,
-            SSLProgramEventData::Withdraw(_) => InstructionType::Withdraw,
-            SSLProgramEventData::ClaimFees(_) => InstructionType::ClaimFees,
-            SSLProgramEventData::CreateLiquidityAccount(_) => {
-                InstructionType::CreateLiquidityAccount
+            LollysLottoProgramEventData::BurnLolly(_) => InstructionType::BurnLolly,
+            LollysLottoProgramEventData::BuyLottoTicket(_) => InstructionType::BuyLottoTicket,
+            LollysLottoProgramEventData::ClaimUserRewards(_) => InstructionType::ClaimUserRewards,
+            LollysLottoProgramEventData::CloseEventEmitter(_) => InstructionType::CloseEventEmitter,
+            LollysLottoProgramEventData::CloseLollysLotto(_) => InstructionType::CloseLollysLotto,
+            LollysLottoProgramEventData::CloseLottoGame(_) => InstructionType::CloseLottoGame,
+            LollysLottoProgramEventData::CrankLottoGameWinner(_) => {
+                InstructionType::CrankLottoGameWinner
             }
-            SSLProgramEventData::CloseLiquidityAccount(_) => InstructionType::CloseLiquidityAccount,
-            SSLProgramEventData::Swap(_) => InstructionType::Swap,
-            SSLProgramEventData::InternalSwap(_) => InstructionType::InternalSwap,
+            LollysLottoProgramEventData::CreateLollyBurnState(_) => {
+                InstructionType::CreateLollyBurnState
+            }
+            LollysLottoProgramEventData::CreateLollysLotto(_) => InstructionType::CreateLollysLotto,
+            LollysLottoProgramEventData::CreateUserMetadata(_) => {
+                InstructionType::CreateUserMetadata
+            }
+            LollysLottoProgramEventData::StartLottoGame(_) => InstructionType::StartLottoGame,
+            LollysLottoProgramEventData::SwapUsdcLolly(_) => InstructionType::SwapUsdcLolly,
+            LollysLottoProgramEventData::ProcessWinningNumbers(_) => {
+                InstructionType::ProcessWinningNumbers
+            }
+            LollysLottoProgramEventData::RequestWinningNumbers(_) => {
+                InstructionType::RequestWinningNumbers
+            }
+            LollysLottoProgramEventData::TestEmitWinningNumbers(_) => {
+                InstructionType::TestEmitWinningNumbers
+            }
         }
     }
 }
@@ -264,7 +282,7 @@ mod tests {
         let seq_num = 10_000;
         let insertion_result = insert_program_event(
             0,
-            InstructionType::CreateLiquidityAccount,
+            InstructionType::CreateLollysLotto,
             Some(seq_num),
             None,
             None,
@@ -282,7 +300,7 @@ mod tests {
 
         let _insertion_result2 = insert_program_event(
             2,
-            InstructionType::CreateLiquidityAccount,
+            InstructionType::CreateLollysLotto,
             Some(10_001),
             None,
             None,
@@ -291,7 +309,7 @@ mod tests {
 
         let insertion_result3 = insert_program_event(
             2000,
-            InstructionType::CreateLiquidityAccount,
+            InstructionType::CreateLollysLotto,
             Some(i64::MAX - 2000),
             None,
             None,

@@ -1,8 +1,10 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Burn, Mint, Token, TokenAccount};
 
-use crate::{constants::LOLLY_MINT, errors::LollyError, pda_identifier::PDAIdentifier, state::lolly_burn_state::LollyBurnState};
-
+use crate::{
+    constants::LOLLY_MINT, errors::LollyError, pda_identifier::PDAIdentifier,
+    state::lolly_burn_state::LollyBurnState,
+};
 
 #[derive(Accounts)]
 pub struct BurnLolly<'info> {
@@ -13,12 +15,12 @@ pub struct BurnLolly<'info> {
     pub authority: Signer<'info>,
     // lolly_burn_state account is a PDA signer all the swap, burn CPIs. It is the PDA which will receive USDC fees to its USDC ATA
     #[account(
-        mut, 
+        mut,
         has_one = authority,
         seeds = [
-            LollyBurnState::IDENT, 
+            LollyBurnState::IDENT,
             authority.key().as_ref()
-        ], 
+        ],
         bump = lolly_burn_state.bump)]
     pub lolly_burn_state: Box<Account<'info, LollyBurnState>>,
     /// LOLLY token account to burn tokens, owned by LollyBurnState PDA
@@ -32,14 +34,16 @@ pub struct BurnLolly<'info> {
 }
 
 pub fn burn_lolly(ctx: Context<BurnLolly>) -> Result<()> {
-
     if ctx.accounts.lolly_burn_state_lolly_vault.mint != LOLLY_MINT {
         return err!(LollyError::OnlyLOLLYBuringAllowed);
     }
 
     let lolly_vault_balance = ctx.accounts.lolly_burn_state_lolly_vault.amount.clone();
 
-    msg!("Burning {:?} Lolly tokens", ctx.accounts.lolly_burn_state_lolly_vault.amount);
+    msg!(
+        "Burning {:?} Lolly tokens",
+        ctx.accounts.lolly_burn_state_lolly_vault.amount
+    );
     let seeds = &[
         LollyBurnState::IDENT,
         ctx.accounts.lolly_burn_state.authority.as_ref(),

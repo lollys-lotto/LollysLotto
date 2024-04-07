@@ -9,7 +9,6 @@ pub struct LollyBurnState {
     pub authority: Pubkey,
 }
 
-
 impl PDAIdentifier for LollyBurnState {
     const IDENT: &'static [u8] = b"lolly-burn-state";
 
@@ -21,7 +20,6 @@ impl PDAIdentifier for LollyBurnState {
 impl LollyBurnState {
     pub fn signer_address(authority: Pubkey) -> Pubkey {
         Self::get_address(&[authority.as_ref()])
-
     }
     pub fn address(authority: Pubkey) -> Pubkey {
         Self::get_address(&[authority.as_ref()])

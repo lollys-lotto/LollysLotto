@@ -3,7 +3,7 @@
   "name": "lollys_lotto",
   "instructions": [
     {
-      "name": "createLollyLotto",
+      "name": "createLollysLotto",
       "accounts": [
         {
           "name": "authority",
@@ -44,7 +44,7 @@
         {
           "name": "lottoGame",
           "isMut": true,
-          "isSigner": true
+          "isSigner": false
         },
         {
           "name": "lottoGameVaultSigner",
@@ -61,7 +61,7 @@
           ]
         },
         {
-          "name": "usdcMint",
+          "name": "lottoGameMint",
           "isMut": false,
           "isSigner": false,
           "docs": [
@@ -112,6 +112,11 @@
       "name": "createUserMetadata",
       "accounts": [
         {
+          "name": "user",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
           "name": "userMetadata",
           "isMut": true,
           "isSigner": false
@@ -130,9 +135,9 @@
           "isSigner": false
         },
         {
-          "name": "user",
+          "name": "eventEmitter",
           "isMut": true,
-          "isSigner": true
+          "isSigner": false
         },
         {
           "name": "tokenProgram",
@@ -166,7 +171,30 @@
           "isSigner": true
         },
         {
+          "name": "userMetadata",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "userUsdcTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "lottoGameMint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Needed for account initialization"
+          ]
+        },
+        {
+          "name": "lottoGame",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "lottoGameVault",
           "isMut": true,
           "isSigner": false
         },
@@ -176,17 +204,7 @@
           "isSigner": false
         },
         {
-          "name": "lottoGame",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userMetadata",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "lottoGameVault",
+          "name": "eventEmitter",
           "isMut": true,
           "isSigner": false
         },
@@ -276,6 +294,11 @@
           ]
         },
         {
+          "name": "eventEmitter",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "tokenProgram",
           "isMut": false,
           "isSigner": false
@@ -302,21 +325,6 @@
           "isSigner": false
         },
         {
-          "name": "user",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "userMetadata",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userRewardsVault",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "lottoGame",
           "isMut": true,
           "isSigner": false
@@ -328,6 +336,26 @@
         },
         {
           "name": "lottoGameVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "user",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "userMetadata",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userRewardsVault",
           "isMut": true,
           "isSigner": false
         },
@@ -346,6 +374,10 @@
               6
             ]
           }
+        },
+        {
+          "name": "winningAmount",
+          "type": "u64"
         }
       ]
     },
@@ -453,7 +485,7 @@
       "args": []
     },
     {
-      "name": "requestRandomness",
+      "name": "requestWinningNumbers",
       "accounts": [
         {
           "name": "randomnessService",
@@ -548,7 +580,7 @@
       "args": []
     },
     {
-      "name": "consumeRandomness",
+      "name": "processWinningNumbers",
       "accounts": [
         {
           "name": "randomnessState",
@@ -571,6 +603,32 @@
         {
           "name": "lottoGame",
           "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "eventEmitter",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "result",
+          "type": "bytes"
+        }
+      ]
+    },
+    {
+      "name": "testEmitWinningNumbers",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "lottoGame",
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -758,8 +816,6 @@
           {
             "name": "startDate",
             "docs": [
-              "The name of this round/LottoGame instance.",
-              "This is a 32 byte string.",
               "The start date of this LottoGame instance."
             ],
             "type": "i64"
@@ -774,7 +830,7 @@
           {
             "name": "ticketPrice",
             "docs": [
-              "The price of a ticket in USDC for this round/LottoGame instance."
+              "The price of a ticket (in USDC) for this round/LottoGame instance."
             ],
             "type": "u64"
           },
@@ -784,6 +840,13 @@
               "The total number of tickets sold for this round/LottoGame instance."
             ],
             "type": "u64"
+          },
+          {
+            "name": "lottoGameMint",
+            "docs": [
+              "The mint used for ticket sales (in USDC)."
+            ],
+            "type": "publicKey"
           },
           {
             "name": "lottoGameVault",
@@ -803,6 +866,20 @@
                 6
               ]
             }
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "The bump seed of this round/LottoGame instance."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "lottoGameVaultBump",
+            "docs": [
+              "The bump seed of this round/LottoGame vault."
+            ],
+            "type": "u8"
           },
           {
             "name": "winningTicket",
@@ -847,9 +924,9 @@
             "type": "publicKey"
           },
           {
-            "name": "totalUserTicketCount",
+            "name": "ticketNumber",
             "docs": [
-              "The total number of tickets the user has purchased at the time of buying this ticket."
+              "The ticket number of this ticket for the current lotto_game."
             ],
             "type": "u64"
           },
@@ -910,7 +987,7 @@
             "type": "publicKey"
           },
           {
-            "name": "openedAt",
+            "name": "createdTimestamp",
             "type": "i64"
           },
           {
@@ -984,7 +1061,7 @@
       }
     },
     {
-      "name": "ConsumeRandomnessEvent",
+      "name": "ProcessWinningNumbersEvent",
       "docs": [
         "Event emitted when a user consumes randomness.",
         "This is a placeholder event, and will be replaced with a more",
@@ -1005,7 +1082,7 @@
       }
     },
     {
-      "name": "RequestRandomnessEvent",
+      "name": "RequestWinningNumbersEvent",
       "docs": [
         "Event emitted when a user requests randomness."
       ],
@@ -1051,8 +1128,41 @@
             "type": "publicKey"
           },
           {
-            "name": "ticket",
+            "name": "userMetadata",
             "type": "publicKey"
+          },
+          {
+            "name": "userTicketCount",
+            "type": "u64"
+          },
+          {
+            "name": "lottoTicket",
+            "type": "publicKey"
+          },
+          {
+            "name": "lottoGame",
+            "type": "publicKey"
+          },
+          {
+            "name": "ticketsSold",
+            "type": "u64"
+          },
+          {
+            "name": "round",
+            "type": "u64"
+          },
+          {
+            "name": "ticketNumber",
+            "type": "u64"
+          },
+          {
+            "name": "numbers",
+            "type": {
+              "array": [
+                "u8",
+                6
+              ]
+            }
           }
         ]
       }
@@ -1137,6 +1247,10 @@
           {
             "name": "userMetadata",
             "type": "publicKey"
+          },
+          {
+            "name": "createdTimestamp",
+            "type": "i64"
           }
         ]
       }
@@ -1282,10 +1396,10 @@
         "kind": "enum",
         "variants": [
           {
-            "name": "ConsumeRandomness"
+            "name": "ProcessWinningNumbers"
           },
           {
-            "name": "RequestRandomness"
+            "name": "RequestWinningNumbers"
           },
           {
             "name": "BurnLolly"
@@ -1323,18 +1437,18 @@
         "kind": "enum",
         "variants": [
           {
-            "name": "ConsumeRandomness",
+            "name": "ProcessWinningNumbers",
             "fields": [
               {
-                "defined": "ConsumeRandomnessEvent"
+                "defined": "ProcessWinningNumbersEvent"
               }
             ]
           },
           {
-            "name": "RequestRandomness",
+            "name": "RequestWinningNumbers",
             "fields": [
               {
-                "defined": "RequestRandomnessEvent"
+                "defined": "RequestWinningNumbersEvent"
               }
             ]
           },
@@ -1528,6 +1642,21 @@
       "code": 6012,
       "name": "GameNotClosed",
       "msg": "Game not closed"
+    },
+    {
+      "code": 6013,
+      "name": "RoundNumbersAreSequential",
+      "msg": "Round numbers have to be sequential"
+    },
+    {
+      "code": 6014,
+      "name": "LottoGameEnded",
+      "msg": "Lotto Game has ended"
+    },
+    {
+      "code": 6015,
+      "name": "GameNotFinished",
+      "msg": "Game not finished"
     }
   ]
 }

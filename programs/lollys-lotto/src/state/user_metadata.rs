@@ -5,8 +5,7 @@ use crate::pda_identifier::PDAIdentifier;
 
 pub const USER_CLAIM_TICKET_CAPACITY: usize = 64;
 
-use crate::constants::{SEVEN_DAYS, USDC_MINT_DEVNET};
-
+use crate::constants::USDC_MINT_DEVNET;
 
 #[account]
 #[derive(Debug, Copy)]
@@ -22,7 +21,7 @@ pub struct UserMetadata {
     pub last_claimed_at: i64,
     pub referral_count: u64,
     pub referral_revenue: u64,
-    pub claim_tickets: [ClaimTicket; USER_CLAIM_TICKET_CAPACITY],
+    // pub claim_tickets: [ClaimTicket; USER_CLAIM_TICKET_CAPACITY],
 }
 
 impl PDAIdentifier for UserMetadata {
@@ -43,10 +42,7 @@ impl UserMetadata {
     }
 
     pub fn user_rewards_holding_address(user: &Pubkey) -> Pubkey {
-        get_associated_token_address(
-            &Self::address_for_user(user),
-            &USDC_MINT_DEVNET,
-        )
+        get_associated_token_address(&Self::address_for_user(user), &USDC_MINT_DEVNET)
     }
 
     pub fn from_buffer(buf: &mut &[u8]) -> Result<Self> {
@@ -57,16 +53,15 @@ impl UserMetadata {
         Self::get_address(&[user.as_ref()])
     }
 
-    pub fn get_claimable_indices(&self, now: i64) -> Vec<u8> {
-        self.claim_tickets
-            .iter()
-            .enumerate()
-            .filter(|(_, t)| **t != ClaimTicket::default() && t.created_at < now - SEVEN_DAYS)
-            .map(|(i, _)| u8::try_from(i).unwrap())
-            .collect()
-    }
+    // pub fn get_claimable_indices(&self, now: i64) -> Vec<u8> {
+    //     self.claim_tickets
+    //         .iter()
+    //         .enumerate()
+    //         .filter(|(_, t)| **t != ClaimTicket::default() && t.created_at < now - SEVEN_DAYS)
+    //         .map(|(i, _)| u8::try_from(i).unwrap())
+    //         .collect()
+    // }
 }
-
 
 #[repr(u64)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, AnchorDeserialize, AnchorSerialize)]
@@ -78,10 +73,9 @@ pub enum UserTier {
     // Platinum,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, AnchorSerialize, AnchorDeserialize)]
-#[repr(C)]
-pub struct ClaimTicket {
-    pub claimed_amount: u64,
-    pub created_at: i64,
-}
-
+// #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, AnchorSerialize, AnchorDeserialize)]
+// #[repr(C)]
+// pub struct ClaimTicket {
+//     pub claimed_amount: u64,
+//     pub created_at: i64,
+// }

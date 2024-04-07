@@ -1,33 +1,33 @@
 mod utils;
 
-use lolly_lotto_localnet::{
-    state::TestEventEmitter, 
-    traits::HasMockRuntime, 
-};
+use lolly_lotto_localnet::{state::TestEventEmitter, traits::HasMockRuntime};
 use solana_program::pubkey::Pubkey;
 
-use lollys_lotto::state::{LollysLotto, LottoGame, LottoGameState, LottoGameVault, LottoTicket, UserMetadata};
+use lollys_lotto::state::{
+    LollysLotto, LottoGame, LottoGameState, LottoGameVault, LottoTicket, UserMetadata,
+};
 use solana_devtools_localnet::GeneratedAccount;
 use spl_associated_token_account::get_associated_token_address;
 
 use utils::test_state::TestState;
 
 use lollys_lotto_rust_sdk::instructions::{
-        buy_lotto_ticket, crank_lotto_game_winner, create_lollys_lotto, create_user_metadata, start_lotto_game, test_emit_winning_numbers
+    buy_lotto_ticket, crank_lotto_game_winner, create_lollys_lotto, create_user_metadata,
+    start_lotto_game, test_emit_winning_numbers,
 };
 
 #[test]
 fn test_create_lollys_lotto() {
     let test_state = TestState::new();
     // assert!(test_state.get_account(&test_state.lolly_lotto).is_none());
-    let (lollys_lotto_pda, lollys_lotto_bump) = LollysLotto::address_with_bump(test_state.test_admin);
+    let (lollys_lotto_pda, lollys_lotto_bump) =
+        LollysLotto::address_with_bump(test_state.test_admin);
     println!("lollys_lotto_pda: {:?}", lollys_lotto_pda);
     test_state.execute([create_lollys_lotto(
         &test_state.test_admin,
         &test_state.lollys_lotto,
         &TestEventEmitter.address(),
     )]);
-
 
     let lollys_lotto = test_state.get_lollys_lotto(lollys_lotto_pda);
     assert_eq!(lollys_lotto.authority, test_state.test_admin);
@@ -39,10 +39,8 @@ fn test_create_lollys_lotto() {
     let game_duration1: u64 = 86400;
     let round_name1 = "Round 1".to_string();
 
-    let (lotto_game_pda1, lotto_game_bump1) = LottoGame::address_with_bump(
-        test_state.test_admin,
-        round1,
-    );
+    let (lotto_game_pda1, lotto_game_bump1) =
+        LottoGame::address_with_bump(test_state.test_admin, round1);
     let lotto_game_vault_signer1 = LottoGameVault::signer_address(lotto_game_pda1);
     let lotto_game_vault1 = LottoGameVault::vault_address(lotto_game_pda1);
     println!("lotto_game_pda1: {:?}", lotto_game_pda1);
@@ -70,7 +68,10 @@ fn test_create_lollys_lotto() {
     assert_eq!(lotto_game1.bump, lotto_game_bump1);
     assert_eq!(lotto_game1.authority, test_state.test_admin);
     assert_eq!(lotto_game1.round, round1);
-    assert_eq!((lotto_game1.end_date - lotto_game1.start_date) as u64, game_duration1);
+    assert_eq!(
+        (lotto_game1.end_date - lotto_game1.start_date) as u64,
+        game_duration1
+    );
     assert_eq!(lotto_game1.ticket_price, ticket_price1);
     assert_eq!(lotto_game1.tickets_sold, 0);
     assert_eq!(lotto_game1.lotto_game_mint, test_state.test_usdc);
@@ -84,16 +85,14 @@ fn test_create_lollys_lotto() {
     let game_duration2: u64 = 3600;
     let round_name2 = "Round 2".to_string();
 
-    let (lotto_game_pda2, lotto_game_bump2) = LottoGame::address_with_bump(
-        test_state.test_admin,
-        round2,
-    );
+    let (lotto_game_pda2, lotto_game_bump2) =
+        LottoGame::address_with_bump(test_state.test_admin, round2);
     let lotto_game_vault_signer2 = LottoGameVault::signer_address(lotto_game_pda2);
     let lotto_game_vault2 = LottoGameVault::vault_address(lotto_game_pda2);
     println!("lotto_game_pda2: {:?}", lotto_game_pda2);
     println!("lotto_game_vault_signer2: {:?}", lotto_game_vault_signer2);
     println!("lotto_game_vault2: {:?}", lotto_game_vault2);
-    
+
     test_state.execute([start_lotto_game(
         round2,
         ticket_price2,
@@ -115,7 +114,10 @@ fn test_create_lollys_lotto() {
     assert_eq!(lotto_game2.bump, lotto_game_bump2);
     assert_eq!(lotto_game2.authority, test_state.test_admin);
     assert_eq!(lotto_game2.round, round2);
-    assert_eq!((lotto_game2.end_date - lotto_game2.start_date) as u64, game_duration2);
+    assert_eq!(
+        (lotto_game2.end_date - lotto_game2.start_date) as u64,
+        game_duration2
+    );
     assert_eq!(lotto_game2.ticket_price, ticket_price2);
     assert_eq!(lotto_game2.tickets_sold, 0);
     assert_eq!(lotto_game2.lotto_game_mint, test_state.test_usdc);
@@ -124,11 +126,10 @@ fn test_create_lollys_lotto() {
     assert_eq!(lotto_game2.winning_ticket, Pubkey::default());
     assert_eq!(lotto_game2.state, LottoGameState::Open);
 
-    let (user_metadata_pda, user_metadata_bump) = UserMetadata::address_with_bump(test_state.test_user);
-    let user_rewards_vault = get_associated_token_address(
-        &user_metadata_pda,
-        &test_state.test_usdc,
-    );
+    let (user_metadata_pda, user_metadata_bump) =
+        UserMetadata::address_with_bump(test_state.test_user);
+    let user_rewards_vault =
+        get_associated_token_address(&user_metadata_pda, &test_state.test_usdc);
     println!("user_metadata_pda: {:?}", user_metadata_pda);
     println!("user_rewards_vault: {:?}", user_rewards_vault);
 
@@ -150,10 +151,11 @@ fn test_create_lollys_lotto() {
     assert_eq!(user_metadata.last_claimed_at, 0);
     assert_eq!(user_metadata.referral_count, 0);
     assert_eq!(user_metadata.referral_revenue, 0);
-    
+
     let round: u64 = 0;
     let numbers1: [u8; 6] = [1, 2, 3, 4, 5, 6];
-    let (lotto_ticket_pda1, _lotto_ticket_bump1) = LottoTicket::address_with_bump(lotto_game_pda1, user_metadata_pda, numbers1);
+    let (lotto_ticket_pda1, _lotto_ticket_bump1) =
+        LottoTicket::address_with_bump(lotto_game_pda1, user_metadata_pda, numbers1);
 
     test_state.execute([buy_lotto_ticket(
         round,
@@ -185,7 +187,8 @@ fn test_create_lollys_lotto() {
 
     let round: u64 = 0;
     let numbers2: [u8; 6] = [1, 2, 3, 4, 5, 7];
-    let (lotto_ticket_pda2, _lotto_ticket_bump2) = LottoTicket::address_with_bump(lotto_game_pda1, user_metadata_pda, numbers2);
+    let (lotto_ticket_pda2, _lotto_ticket_bump2) =
+        LottoTicket::address_with_bump(lotto_game_pda1, user_metadata_pda, numbers2);
 
     test_state.execute([buy_lotto_ticket(
         round,
@@ -221,17 +224,21 @@ fn test_create_lollys_lotto() {
     println!("Initial Time: {}", initial_time);
 
     let time_advance: i64 = lotto_game1.end_date - lotto_game1.start_date;
-    
+
     test_state.set_timestamp(
-        test_state.runtime().working_bank().clock().epoch_start_timestamp 
-        + time_advance
+        test_state
+            .runtime()
+            .working_bank()
+            .clock()
+            .epoch_start_timestamp
+            + time_advance,
     );
-    
+
     println!("Time Advance: {}", time_advance);
 
     println!("Current Slot: {:?}", test_state.clock());
 
-    let winning_numbers : Vec<u8> = vec![1, 2, 3, 4, 5, 6];
+    let winning_numbers: Vec<u8> = vec![1, 2, 3, 4, 5, 6];
     test_state.execute([test_emit_winning_numbers(
         winning_numbers.clone(),
         &test_state.test_admin,
@@ -243,9 +250,10 @@ fn test_create_lollys_lotto() {
     winning_numbers_array.copy_from_slice(&winning_numbers[..6]);
 
     let winning_amount = ticket_price1
-        .checked_mul(15).unwrap()
-        .checked_div(10).unwrap()
-        as u64;
+        .checked_mul(15)
+        .unwrap()
+        .checked_div(10)
+        .unwrap() as u64;
     test_state.execute([crank_lotto_game_winner(
         winning_numbers_array,
         winning_amount,
@@ -270,10 +278,8 @@ fn test_create_lollys_lotto() {
     assert_eq!(lotto_game1.state, LottoGameState::Finished);
     assert_eq!(user_metadata.total_amount_won, winning_amount);
     assert_eq!(user_rewards_vault_balance, winning_amount);
-    
 
     // test_state.set_slot(test_state.runtime().working_bank().clock().slot + lotto_game.end_date as u64 - lotto_game.start_date as u64);
 
     // assert_eq!(true, false);
 }
-

@@ -1,25 +1,21 @@
 use lazy_static::lazy_static;
-use lollys_lotto::{state::{LollyBurnState, LollysLotto, LottoGame, LottoTicket, UserMetadata}, Pubkey};
+use lollys_lotto::{
+    state::{LollyBurnState, LollysLotto, LottoGame, LottoTicket, UserMetadata},
+    Pubkey,
+};
 use solana_devtools_localnet::{
-    GeneratedAccount, 
-    LocalnetConfiguration, 
-    TransactionSimulator,
-    localnet_account::TokenAccount,
+    localnet_account::TokenAccount, GeneratedAccount, LocalnetConfiguration, TransactionSimulator,
 };
 use std::{ops::Deref, sync::Mutex};
 
 use lolly_lotto_localnet::{
-    mints::TestUsdc, 
-    primary_localnet, 
-    state::{
-        TestEventEmitter, 
-        // TestUserMetadata
-    }, 
-    traits::HasMockRuntime, 
-    user_accounts::{TestAdmin, TestUser}, 
+    mints::TestUsdc,
+    primary_localnet,
+    state::TestEventEmitter,
+    traits::HasMockRuntime,
+    user_accounts::{TestAdmin, TestUser},
     TestUserUsdc,
 };
-
 
 pub const DEFAULT_MAX_SLOT_PRICE_STALENESS: u8 = 11;
 
@@ -36,7 +32,6 @@ fn test_config() -> LocalnetConfiguration {
         .unwrap()
 }
 
-
 /// All the addresses needed to run tests,
 /// and some getters for blockchain state.
 ///
@@ -52,7 +47,6 @@ pub struct TestState {
     pub lollys_lotto: Pubkey,
 }
 
-
 impl HasMockRuntime for TestState {
     fn runtime(&self) -> &TransactionSimulator {
         &self.runtime
@@ -64,7 +58,7 @@ impl HasMockRuntime for TestState {
 }
 
 impl TestState {
-    pub fn new() -> Self{
+    pub fn new() -> Self {
         let test_event_emitter = TestEventEmitter.address();
         let test_admin = TestAdmin.address();
         let test_usdc = TestUsdc.address();
@@ -78,14 +72,17 @@ impl TestState {
         runtime.update_clock(Some(DEFAULT_MAX_SLOT_PRICE_STALENESS as u64 + 1), None);
         println!("test_admin: {:?}", test_admin);
         println!("test_user: {:?}", test_user);
-        println!("lollys_lotto: LollysLotto::address(test_admin): {:?}", LollysLotto::address(test_admin));
+        println!(
+            "lollys_lotto: LollysLotto::address(test_admin): {:?}",
+            LollysLotto::address(test_admin)
+        );
         println!("test_event_emitter: {:?}", test_event_emitter);
         Self {
             runtime,
             test_event_emitter,
             test_admin,
             test_usdc,
-            test_user,  
+            test_user,
             test_user_usdc,
             // test_user_metadata,
             lollys_lotto: LollysLotto::address(test_admin),
@@ -101,7 +98,7 @@ impl TestState {
         self.get_account_as::<LottoGame>(&lotto_game_pubkey)
             .expect("couldn't find Lotto Game account")
     }
-    
+
     pub fn get_user_metadata(&self, user_metadata_pubkey: Pubkey) -> UserMetadata {
         self.get_account_as::<UserMetadata>(&user_metadata_pubkey)
             .expect("couldn't find User Metadata account")
@@ -118,9 +115,9 @@ impl TestState {
     }
 
     pub fn get_ata_balance(&self, lotto_game_vault_pubkey: Pubkey) -> u64 {
-        let state: TokenAccount = self.get_account_as(&lotto_game_vault_pubkey)
+        let state: TokenAccount = self
+            .get_account_as(&lotto_game_vault_pubkey)
             .expect("Could not find Lotto Game Vault account");
         state.amount
     }
-
 }

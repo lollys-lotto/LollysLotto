@@ -3,8 +3,8 @@ use crate::{
     event_processing::shared_processing::{self},
     prom_metrics::metrics::{set_market_making_pnl_metrics, set_pool_vault_balance_metrics},
 };
-use lollys_lotto::DepositOrWithdraw;
 use log::info;
+use lollys_lotto::DepositOrWithdraw;
 use program_monitor_db::{Database, InstructionType};
 
 pub async fn process_deposit_and_withdraw_event(

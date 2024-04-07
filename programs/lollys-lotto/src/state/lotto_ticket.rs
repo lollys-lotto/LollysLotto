@@ -1,5 +1,5 @@
-use anchor_lang::prelude::*;
 use crate::pda_identifier::PDAIdentifier;
+use anchor_lang::prelude::*;
 
 #[account]
 #[derive(Debug, Copy)]
@@ -38,32 +38,32 @@ impl PDAIdentifier for LottoTicket {
 
 impl LottoTicket {
     pub fn address(lotto_game: Pubkey, user_metadata: Pubkey, numbers: [u8; 6]) -> Pubkey {
-        Self::get_address(
-            &[
-                lotto_game.as_ref(),
-                user_metadata.as_ref(), 
-                numbers[0].to_le_bytes().as_ref(),
-                numbers[1].to_le_bytes().as_ref(),
-                numbers[2].to_le_bytes().as_ref(),
-                numbers[3].to_le_bytes().as_ref(),
-                numbers[4].to_le_bytes().as_ref(),
-                numbers[5].to_le_bytes().as_ref(),
-            ]
-        )
+        Self::get_address(&[
+            lotto_game.as_ref(),
+            user_metadata.as_ref(),
+            numbers[0].to_le_bytes().as_ref(),
+            numbers[1].to_le_bytes().as_ref(),
+            numbers[2].to_le_bytes().as_ref(),
+            numbers[3].to_le_bytes().as_ref(),
+            numbers[4].to_le_bytes().as_ref(),
+            numbers[5].to_le_bytes().as_ref(),
+        ])
     }
 
-    pub fn address_with_bump(lotto_game: Pubkey, user_metadata: Pubkey, numbers: [u8; 6]) -> (Pubkey, u8) {
-        Self::get_address_with_bump(
-            &[
-                lotto_game.as_ref(),
-                user_metadata.as_ref(), 
-                numbers[0].to_le_bytes().as_ref(),
-                numbers[1].to_le_bytes().as_ref(),
-                numbers[2].to_le_bytes().as_ref(),
-                numbers[3].to_le_bytes().as_ref(),
-                numbers[4].to_le_bytes().as_ref(),
-                numbers[5].to_le_bytes().as_ref(),
-            ]
-        )
+    pub fn address_with_bump(
+        lotto_game: Pubkey,
+        user_metadata: Pubkey,
+        numbers: [u8; 6],
+    ) -> (Pubkey, u8) {
+        Self::get_address_with_bump(&[
+            lotto_game.as_ref(),
+            user_metadata.as_ref(),
+            numbers[0].to_le_bytes().as_ref(),
+            numbers[1].to_le_bytes().as_ref(),
+            numbers[2].to_le_bytes().as_ref(),
+            numbers[3].to_le_bytes().as_ref(),
+            numbers[4].to_le_bytes().as_ref(),
+            numbers[5].to_le_bytes().as_ref(),
+        ])
     }
 }

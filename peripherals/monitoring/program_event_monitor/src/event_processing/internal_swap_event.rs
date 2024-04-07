@@ -3,9 +3,9 @@ use crate::{
     event_processing::shared_processing::{self},
     prom_metrics::metrics::set_pool_vault_balance_metrics,
 };
-use lollys_lotto::InternalSwapEvent;
 use log::{info, warn};
-use program_monitor_db::{error::ForeignKey, Database, SSLv2DatabaseError};
+use lollys_lotto::InternalSwapEvent;
+use program_monitor_db::{error::ForeignKey, Database, LollysLottoDatabaseError};
 
 pub async fn process_internal_swap_event(
     db: &Database,
@@ -135,7 +135,7 @@ pub async fn process_internal_swap_event(
         )
         .await
     {
-        Err(SSLv2DatabaseError::MissingForeignKey(ForeignKey::Pair, _)) => {
+        Err(LollysLottoDatabaseError::MissingForeignKey(ForeignKey::Pair, _)) => {
             warn!("Missing pair foreign key");
             db.insert_pair_info(&address_calculator.pool_registry, &mint_a, &mint_b)
                 .await?;
@@ -149,7 +149,7 @@ pub async fn process_internal_swap_event(
             )
             .await?;
         }
-        Err(SSLv2DatabaseError::DuplicateKeyValue(constraint, _)) => {
+        Err(LollysLottoDatabaseError::DuplicateKeyValue(constraint, _)) => {
             warn!(
                 "violated constraint {}, skipping duplicate internal swap tied to event {}",
                 constraint, event_id

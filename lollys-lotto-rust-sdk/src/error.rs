@@ -1,5 +1,5 @@
-use thiserror::Error;
 use anchor_client::solana_sdk::pubkey::Pubkey;
+use thiserror::Error;
 
 #[derive(Debug, Clone, Error)]
 pub enum LollyLottoSDKError {

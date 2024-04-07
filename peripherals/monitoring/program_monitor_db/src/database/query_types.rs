@@ -1,4 +1,4 @@
-use crate::{utils::type_conversions::u64_to_i64, SSLv2DatabaseError};
+use crate::{utils::type_conversions::u64_to_i64, LollysLottoDatabaseError};
 use sqlx::types::chrono::NaiveDateTime;
 use std::fmt::{Display, Formatter};
 
@@ -25,7 +25,7 @@ impl SlotRange {
 
     pub fn between(start: u64, end: u64) -> crate::Result<Self> {
         if start >= end {
-            return Err(SSLv2DatabaseError::InvalidSlotRange(start, end));
+            return Err(LollysLottoDatabaseError::InvalidSlotRange(start, end));
         }
         Ok(Self::Between(u64_to_i64(start), u64_to_i64(end)))
     }
@@ -73,7 +73,7 @@ impl DateTimeRange {
 
     pub fn between(start: NaiveDateTime, end: NaiveDateTime) -> crate::Result<Self> {
         if start >= end {
-            return Err(SSLv2DatabaseError::InvalidDateTimeRange(
+            return Err(LollysLottoDatabaseError::InvalidDateTimeRange(
                 start.to_string(),
                 end.to_string(),
             ));

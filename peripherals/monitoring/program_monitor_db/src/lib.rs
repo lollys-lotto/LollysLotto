@@ -3,4 +3,4 @@ pub mod error;
 pub mod utils;
 
 pub use database::*;
-pub use error::{Result, SSLv2DatabaseError};
+pub use error::{LollysLottoDatabaseError, Result};

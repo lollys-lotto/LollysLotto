@@ -1,6 +1,6 @@
 use crate::{account_polling::PolledAccount, prom_metrics::metrics::ORACLE_PRICE};
-use lollys_lotto::{AccountHistoryIterator, OraclePriceHistory};
 use log::info;
+use lollys_lotto::{AccountHistoryIterator, OraclePriceHistory};
 use program_monitor_db::{utils::type_conversions::option_pubkey::Pubkey, Database};
 use std::{sync::Arc, time::Duration};
 

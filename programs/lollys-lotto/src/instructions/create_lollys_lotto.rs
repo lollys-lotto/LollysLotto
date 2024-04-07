@@ -1,6 +1,9 @@
 pub use anchor_lang::prelude::*;
 
-use crate::{pda_identifier::PDAIdentifier, state::{CreateLollysLottoEvent, EventEmitter, LollysLotto, LollysLottoEventData}};
+use crate::{
+    pda_identifier::PDAIdentifier,
+    state::{CreateLollysLottoEvent, EventEmitter, LollysLotto, LollysLottoProgramEventData},
+};
 
 #[derive(Accounts)]
 pub struct CreateLollysLotto<'info> {
@@ -32,8 +35,8 @@ impl<'info> CreateLollysLotto<'info> {
         let clock = Clock::get()?;
         let block_time = clock.unix_timestamp;
         self.event_emitter.emit_new_event(
-            Some(block_time), 
-            LollysLottoEventData::CreateLollysLotto(CreateLollysLottoEvent{
+            Some(block_time),
+            LollysLottoProgramEventData::CreateLollysLotto(CreateLollysLottoEvent {
                 authority: *self.authority.key,
                 lollys_lotto: *lollys_lotto.to_account_info().key,
                 lotto_game_count: lollys_lotto.lotto_game_count,

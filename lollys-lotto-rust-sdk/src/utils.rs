@@ -1,13 +1,9 @@
+use crate::error::{self, LollyLottoSDKError};
 use anchor_client::{
     anchor_lang::AccountDeserialize,
-    solana_client::{
-        nonblocking::rpc_client::RpcClient as NonBlockingRpcClient, 
-        rpc_client
-    },
+    solana_client::{nonblocking::rpc_client::RpcClient as NonBlockingRpcClient, rpc_client},
     solana_sdk::pubkey::Pubkey,
 };
-use crate::error::{self, LollyLottoSDKError};
-
 
 pub async fn get_state<T: AccountDeserialize>(
     address: &Pubkey,
@@ -18,8 +14,9 @@ pub async fn get_state<T: AccountDeserialize>(
         .get_account_data(address)
         .await
         .map_err(|_| LollyLottoSDKError::AccountNotFound(address.clone()))?;
-    let state = T::try_deserialize(&mut data.as_slice())
-        .map_err(|_| LollyLottoSDKError::DeserializeFailure(address.clone(), type_name.to_string()))?;
+    let state = T::try_deserialize(&mut data.as_slice()).map_err(|_| {
+        LollyLottoSDKError::DeserializeFailure(address.clone(), type_name.to_string())
+    })?;
     Ok(state)
 }
 
@@ -31,8 +28,9 @@ pub fn get_state_blocking<T: AccountDeserialize>(
     let data = client
         .get_account_data(address)
         .map_err(|_| LollyLottoSDKError::AccountNotFound(address.clone()))?;
-    let state = T::try_deserialize(&mut data.as_slice())
-        .map_err(|_| LollyLottoSDKError::DeserializeFailure(address.clone(), type_name.to_string()))?;
+    let state = T::try_deserialize(&mut data.as_slice()).map_err(|_| {
+        LollyLottoSDKError::DeserializeFailure(address.clone(), type_name.to_string())
+    })?;
     Ok(state)
 }
 

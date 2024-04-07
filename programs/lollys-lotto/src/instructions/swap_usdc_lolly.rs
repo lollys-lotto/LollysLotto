@@ -2,10 +2,16 @@ use anchor_lang::{
     prelude::*,
     solana_program::{instruction::Instruction, program::invoke_signed},
 };
-use anchor_spl::{associated_token::AssociatedToken, token::{Token, TokenAccount}};
+use anchor_spl::{
+    associated_token::AssociatedToken,
+    token::{Token, TokenAccount},
+};
 
 use crate::{
-    constants::{LOLLY_MINT, USDC_MINT_DEVNET}, errors::LollyError, pda_identifier::PDAIdentifier, state::lolly_burn_state::LollyBurnState
+    constants::{LOLLY_MINT, USDC_MINT_DEVNET},
+    errors::LollyError,
+    pda_identifier::PDAIdentifier,
+    state::lolly_burn_state::LollyBurnState,
 };
 
 mod jupiter {
@@ -28,11 +34,11 @@ pub struct SwapUsdcLolly<'info> {
     // lolly_burn_state account is a PDA signer all the swap, burn CPIs. It is the PDA which will receive USDC fees to its USDC ATA
     #[account(
         mut,
-        has_one = authority, 
+        has_one = authority,
         seeds=[
-            LollyBurnState::IDENT, 
+            LollyBurnState::IDENT,
             authority.key().as_ref()
-        ], 
+        ],
         bump = lolly_burn_state.bump)]
     pub lolly_burn_state: Box<Account<'info, LollyBurnState>>,
     /// token_in_mint to be swapped using jupiter
@@ -69,7 +75,10 @@ pub struct SwapUsdcLolly<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn swap_usdc_lolly<'a, 'b, 'c:'info, 'info>(ctx: Context<'a, 'b, 'c, 'info, SwapUsdcLolly<'info>>, data: Vec<u8>) -> Result<()> {
+pub fn swap_usdc_lolly<'a, 'b, 'c: 'info, 'info>(
+    ctx: Context<'a, 'b, 'c, 'info, SwapUsdcLolly<'info>>,
+    data: Vec<u8>,
+) -> Result<()> {
     msg!("Swap on Jupiter");
 
     // 3rd account in remaining_accounts is the source token account/USDC account
@@ -87,7 +96,8 @@ pub fn swap_usdc_lolly<'a, 'b, 'c:'info, 'info>(ctx: Context<'a, 'b, 'c, 'info, 
         Account::try_from_unchecked(&ctx.remaining_accounts[6])?;
 
     if (jupiter_destination_token_account.mint != ctx.accounts.lolly_burn_state_lolly_vault.mint)
-        && (jupiter_destination_token_account.key() != ctx.accounts.lolly_burn_state_lolly_vault.key())
+        && (jupiter_destination_token_account.key()
+            != ctx.accounts.lolly_burn_state_lolly_vault.key())
     {
         return err!(LollyError::JupiterIxDestinationTokenAccountMismatch);
     }

@@ -6,8 +6,8 @@ use crate::{
 };
 use anchor_lang::solana_program::clock::Slot;
 use anyhow::anyhow;
-use lollys_lotto::SSLProgramEvent;
 use log::{error, info};
+use lollys_lotto::SSLProgramEvent;
 use program_monitor_db::{
     utils::type_conversions::option_pubkey::Pubkey, Database, ProgramEventRow,
 };

@@ -1,10 +1,5 @@
 pub use anchor_client::anchor_lang::{
-    solana_program::{
-        instruction::Instruction,
-        system_program,
-        pubkey::Pubkey,
-        sysvar,
-    },
+    solana_program::{instruction::Instruction, pubkey::Pubkey, system_program, sysvar},
     InstructionData, ToAccountMetas,
 };
 pub use anchor_spl::{associated_token, token};
@@ -24,7 +19,6 @@ pub mod swap_usdc_lolly;
 // pub mod process_winning_numbers;
 // pub mod request_winning_numbers;
 pub mod test_emit_winning_numbers;
-
 
 pub use burn_lolly::*;
 pub use buy_lotto_ticket::*;

@@ -16,7 +16,7 @@ RUST_LOG="info"
 
 
 
-# Build the SSLv2 program for release
+# Build the LollysLotto program for release
 [tasks.build_release]
 args = ["build", "-p", "lollys_lotto", "--verifiable"]
 command = "anchor"

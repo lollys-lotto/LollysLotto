@@ -3,10 +3,10 @@ use solana_randomness_service::SimpleRandomnessV1Account;
 use solana_randomness_service::ID as SolanaRandomnessServiceID;
 
 use crate::pda_identifier::PDAIdentifier;
-use crate::state::ProcessWinningNumbersEvent;
 use crate::state::EventEmitter;
-use crate::state::LollysLottoEventData;
+use crate::state::LollysLottoProgramEventData;
 use crate::state::LottoGame;
+use crate::state::ProcessWinningNumbersEvent;
 
 #[derive(Accounts)]
 pub struct ProcessWinningNumbers<'info> {
@@ -51,14 +51,13 @@ pub fn process_winning_numbers(
     let clock = Clock::get()?;
     let block_time = clock.unix_timestamp;
     event_emitter.emit_new_event(
-        Some(block_time), 
-        LollysLottoEventData::ProcessWinningNumbers(ProcessWinningNumbersEvent {
+        Some(block_time),
+        LollysLottoProgramEventData::ProcessWinningNumbers(ProcessWinningNumbersEvent {
             round: lotto_game.round,
             randomness: result,
         }),
     )?;
     // let lotto_game = &mut _ctx.accounts.lotto_game;
-
 
     // let winning_numbers: [u8; 6] = if result.len() == 6 {
     //     // Attempt to convert the Vec<u8> into an array [u8; 6]

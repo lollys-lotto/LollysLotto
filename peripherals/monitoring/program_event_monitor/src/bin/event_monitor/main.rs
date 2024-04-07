@@ -1,5 +1,6 @@
 use anchor_lang::solana_program::clock::Slot;
 use clap::Parser;
+use log::{debug, error, info};
 use lollys_lotto::{sdk::constants::MAINNET_POOL_REGISTRY, EventEmitter, SSLProgramEvent};
 use lollys_lotto_event_monitor::{
     account_polling::{oracle_price_history::OraclePriceHistoryPoll, PolledAccount},
@@ -10,7 +11,6 @@ use lollys_lotto_event_monitor::{
     log_parsing::LoggedTransactionFailure,
     prom_metrics::metrics::{self, SSL_METRICS_REGISTRY},
 };
-use log::{debug, error, info};
 use program_monitor_db::Database;
 use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_sdk::{pubkey::Pubkey, signature::Signature, transaction::TransactionError};

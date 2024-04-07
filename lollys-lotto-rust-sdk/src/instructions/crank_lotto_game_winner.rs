@@ -12,10 +12,11 @@ pub fn crank_lotto_game_winner(
     lotto_game_vault: &Pubkey,
     lotto_ticket: &Pubkey,
 ) -> Instruction {
-    let data = lollys_lotto::instruction::CrankLottoGameWinner{
+    let data = lollys_lotto::instruction::CrankLottoGameWinner {
         winning_numbers,
         winning_amount,
-    }.data();
+    }
+    .data();
     let accounts = lollys_lotto::accounts::CrankLottoGameWinner {
         authority: *authority,
         lotto_game: *lotto_game,
@@ -26,7 +27,8 @@ pub fn crank_lotto_game_winner(
         user_metadata: *user_metadata,
         user_rewards_vault: *user_rewards_vault,
         lotto_ticket: *lotto_ticket,
-    }.to_account_metas(None);
+    }
+    .to_account_metas(None);
     Instruction {
         program_id: lollys_lotto::ID,
         accounts,

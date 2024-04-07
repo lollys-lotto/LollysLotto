@@ -13,14 +13,15 @@ pub fn start_lotto_game(
     lotto_game_mint: &Pubkey,
     event_emitter: &Pubkey,
 ) -> Instruction {
-    let data = lollys_lotto::instruction::StartLottoGame{
+    let data = lollys_lotto::instruction::StartLottoGame {
         round,
         ticket_price,
         game_duration,
         round_name,
-    }.data();
+    }
+    .data();
 
-    let accounts = lollys_lotto::accounts::StartLottoGame{
+    let accounts = lollys_lotto::accounts::StartLottoGame {
         authority: *authority,
         lollys_lotto: *lollys_lotto,
         lotto_game: *lotto_game,
@@ -31,7 +32,8 @@ pub fn start_lotto_game(
         token_program: token::ID,
         associated_token_program: associated_token::ID,
         system_program: system_program::ID,
-    }.to_account_metas(None);
+    }
+    .to_account_metas(None);
     Instruction {
         program_id: lollys_lotto::ID,
         accounts,

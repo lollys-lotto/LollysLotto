@@ -54,7 +54,6 @@ impl PDAIdentifier for LottoGame {
 impl LottoGame {
     pub fn signer_address(authority: Pubkey, round: u64) -> Pubkey {
         Self::get_address(&[authority.as_ref(), &round.to_le_bytes()])
-
     }
     pub fn address(authority: Pubkey, round: u64) -> Pubkey {
         Self::get_address(&[authority.as_ref(), &round.to_le_bytes()])
@@ -82,14 +81,10 @@ impl PDAIdentifier for LottoGameVault {
 impl LottoGameVault {
     /// This PDA signer's USDC associated token account.
     pub fn vault_address(lotto_game: Pubkey) -> Pubkey {
-        get_associated_token_address(
-            &Self::signer_address(lotto_game),
-            &USDC_MINT_DEVNET,
-        )
+        get_associated_token_address(&Self::signer_address(lotto_game), &USDC_MINT_DEVNET)
     }
 
     pub fn signer_address(lotto_game: Pubkey) -> Pubkey {
         Self::get_address(&[lotto_game.as_ref()])
     }
-
 }

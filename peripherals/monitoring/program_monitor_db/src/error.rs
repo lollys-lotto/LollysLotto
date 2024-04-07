@@ -2,7 +2,7 @@ use regex::Regex;
 use sqlx::postgres::PgDatabaseError;
 use std::fmt::{Display, Formatter};
 
-pub type Result<T> = std::result::Result<T, SSLv2DatabaseError>;
+pub type Result<T> = std::result::Result<T, LollysLottoDatabaseError>;
 
 /// Each variant here is used as a foreign key
 /// somewhere in the schema.
@@ -26,7 +26,7 @@ impl Display for ForeignKey {
 }
 
 #[derive(Debug, thiserror::Error)]
-pub enum SSLv2DatabaseError {
+pub enum LollysLottoDatabaseError {
     #[error("Failed to connect to the database: {0}")]
     DatabaseConnectionError(sqlx::Error),
     #[error("Invalid database URL: {0}: {1}")]
@@ -49,27 +49,27 @@ pub enum SSLv2DatabaseError {
     InvalidDateTimeRange(String, String),
 }
 
-impl From<sqlx::Error> for SSLv2DatabaseError {
+impl From<sqlx::Error> for LollysLottoDatabaseError {
     fn from(e: sqlx::Error) -> Self {
         match &e {
             sqlx::Error::Database(db_err) => {
                 if let Some(err) = db_err.try_downcast_ref::<PgDatabaseError>() {
                     if err.code() == FOREIGN_KEY_VIOLATION_ERR_CODE {
                         let fk = table_with_missing_row(err.detail().unwrap_or(""));
-                        SSLv2DatabaseError::MissingForeignKey(fk, e)
+                        LollysLottoDatabaseError::MissingForeignKey(fk, e)
                     } else if err.code() == DUPLICATE_KEY_VIOLATION_ERR_CODE {
-                        SSLv2DatabaseError::DuplicateKeyValue(
+                        LollysLottoDatabaseError::DuplicateKeyValue(
                             err.constraint().unwrap().to_string(),
                             e,
                         )
                     } else {
-                        SSLv2DatabaseError::OtherSqlxError(e)
+                        LollysLottoDatabaseError::OtherSqlxError(e)
                     }
                 } else {
-                    SSLv2DatabaseError::OtherSqlxError(e)
+                    LollysLottoDatabaseError::OtherSqlxError(e)
                 }
             }
-            _ => SSLv2DatabaseError::OtherSqlxError(e),
+            _ => LollysLottoDatabaseError::OtherSqlxError(e),
         }
     }
 }

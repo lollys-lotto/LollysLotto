@@ -1,8 +1,9 @@
 use crate::address_calculator::AddressCalculator;
-use lollys_lotto::Pair;
 use log::{info, warn};
+use lollys_lotto::Pair;
 use program_monitor_db::{
-    error::ForeignKey, utils::type_conversions::option_pubkey::Pubkey, Database, SSLv2DatabaseError,
+    error::ForeignKey, utils::type_conversions::option_pubkey::Pubkey, Database,
+    LollysLottoDatabaseError,
 };
 
 pub async fn process_fee_vault_activity(
@@ -18,14 +19,14 @@ pub async fn process_fee_vault_activity(
         .insert_fee_vault_activity(event_id, &fee_vault, balance_before, balance_after)
         .await
     {
-        Err(SSLv2DatabaseError::MissingForeignKey(ForeignKey::FeeVault, _)) => {
+        Err(LollysLottoDatabaseError::MissingForeignKey(ForeignKey::FeeVault, _)) => {
             info!("Missing fee vault foreign key");
             db.insert_fee_vault_info(&fee_vault, &address_calculator.pool_registry, &mint_out)
                 .await?;
             db.insert_fee_vault_activity(event_id, &fee_vault, balance_before, balance_after)
                 .await?;
         }
-        Err(SSLv2DatabaseError::DuplicateKeyValue(constraint, _)) => {
+        Err(LollysLottoDatabaseError::DuplicateKeyValue(constraint, _)) => {
             warn!(
                 "violated constraint {}, skipping duplicate fee vault activity tied to event {}",
                 constraint, event_id
@@ -53,7 +54,7 @@ pub async fn process_pool_vault_activity(
         .insert_pool_vault_activity(event_id, &pool_vault, balance_before, balance_after)
         .await
     {
-        Err(SSLv2DatabaseError::MissingForeignKey(ForeignKey::PoolVault, _)) => {
+        Err(LollysLottoDatabaseError::MissingForeignKey(ForeignKey::PoolVault, _)) => {
             info!("Missing pool vault foreign key");
             db.insert_pool_vault_info(
                 &pool_vault,
@@ -65,7 +66,7 @@ pub async fn process_pool_vault_activity(
             db.insert_pool_vault_activity(event_id, &pool_vault, balance_before, balance_after)
                 .await?;
         }
-        Err(SSLv2DatabaseError::DuplicateKeyValue(constraint, _)) => {
+        Err(LollysLottoDatabaseError::DuplicateKeyValue(constraint, _)) => {
             warn!(
                 "violated constraint {}, skipping duplicate pool vault activity tied to event {}",
                 constraint, event_id
@@ -98,7 +99,7 @@ pub async fn process_liquidity_account_activity(
         )
         .await
     {
-        Err(SSLv2DatabaseError::MissingForeignKey(ForeignKey::LiquidityAccount, _)) => {
+        Err(LollysLottoDatabaseError::MissingForeignKey(ForeignKey::LiquidityAccount, _)) => {
             info!("Missing liquidity account foreign key");
             db.insert_liquidity_account_info(
                 &liquidity_account,
@@ -119,7 +120,7 @@ pub async fn process_liquidity_account_activity(
             )
             .await?;
         }
-        Err(SSLv2DatabaseError::DuplicateKeyValue(constraint, _)) => {
+        Err(LollysLottoDatabaseError::DuplicateKeyValue(constraint, _)) => {
             warn!(
                 "violated constraint {}, skipping duplicate liquidity activity tied to event {}",
                 constraint, event_id
@@ -150,7 +151,7 @@ pub async fn process_lp_deposit_activity(
         )
         .await
     {
-        Err(SSLv2DatabaseError::MissingForeignKey(ForeignKey::LiquidityAccount, _)) => {
+        Err(LollysLottoDatabaseError::MissingForeignKey(ForeignKey::LiquidityAccount, _)) => {
             info!("Missing liquidity account foreign key");
             db.insert_liquidity_account_info(
                 &liquidity_account,
@@ -170,7 +171,7 @@ pub async fn process_lp_deposit_activity(
             )
             .await?;
         }
-        Err(SSLv2DatabaseError::DuplicateKeyValue(constraint, _)) => {
+        Err(LollysLottoDatabaseError::DuplicateKeyValue(constraint, _)) => {
             warn!(
                 "violated constraint {}, skipping duplicate lp deposit activity tied to event {}",
                 constraint, event_id
@@ -206,7 +207,7 @@ pub async fn process_pair_activity(
         )
         .await
     {
-        Err(SSLv2DatabaseError::MissingForeignKey(ForeignKey::Pair, _)) => {
+        Err(LollysLottoDatabaseError::MissingForeignKey(ForeignKey::Pair, _)) => {
             info!("Missing pair foreign key");
             db.insert_pair_info(&address_calculator.pool_registry, &mint_in, &mint_out)
                 .await?;
@@ -219,7 +220,7 @@ pub async fn process_pair_activity(
             )
             .await?;
         }
-        Err(SSLv2DatabaseError::DuplicateKeyValue(constraint, _)) => {
+        Err(LollysLottoDatabaseError::DuplicateKeyValue(constraint, _)) => {
             warn!(
                 "violated constraint {}, skipping duplicate pair activity tied to event {}",
                 constraint, event_id

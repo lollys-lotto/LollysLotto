@@ -1,4 +1,4 @@
-use crate::{Result, SSLv2DatabaseError};
+use crate::{LollysLottoDatabaseError, Result};
 use num_traits::cast::ToPrimitive;
 use sqlx::types::{chrono::NaiveDateTime, Decimal};
 
@@ -37,7 +37,7 @@ pub fn u64_to_byte_array(val: u64) -> Vec<u8> {
 /// Decodes to a little-endian `u64`.
 pub fn byte_array_to_u64(val: &[u8]) -> Result<u64> {
     if val.len() != 8 {
-        return Err(SSLv2DatabaseError::BytesToU64Error(val.len()));
+        return Err(LollysLottoDatabaseError::BytesToU64Error(val.len()));
     }
     Ok(u64::from_le_bytes(val[0..8].try_into().unwrap()))
 }
@@ -58,7 +58,7 @@ pub fn u128_to_byte_array(val: u128) -> Vec<u8> {
 /// Decodes to a little-endian `u128`.
 pub fn byte_array_to_u128(val: &[u8]) -> Result<u128> {
     if val.len() != 16 {
-        return Err(SSLv2DatabaseError::BytesToU128Error(val.len()));
+        return Err(LollysLottoDatabaseError::BytesToU128Error(val.len()));
     }
     Ok(u128::from_le_bytes(val[0..16].try_into().unwrap()))
 }

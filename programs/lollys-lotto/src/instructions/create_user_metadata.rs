@@ -1,20 +1,29 @@
 pub use anchor_lang::prelude::*;
-use anchor_spl::{associated_token::AssociatedToken, token::{Mint, Token, TokenAccount}};
+use anchor_spl::{
+    associated_token::AssociatedToken,
+    token::{Mint, Token, TokenAccount},
+};
 
-use crate::{constants::USDC_MINT_DEVNET, pda_identifier::PDAIdentifier, state::{ClaimTicket, CreateUserMetadataEvent, EventEmitter, LollysLottoEventData, UserMetadata, UserTier, USER_CLAIM_TICKET_CAPACITY}};
+use crate::{
+    constants::USDC_MINT_DEVNET,
+    pda_identifier::PDAIdentifier,
+    state::{
+        CreateUserMetadataEvent, EventEmitter, LollysLottoProgramEventData, UserMetadata, UserTier,
+    },
+};
 
 #[derive(Accounts)]
 pub struct CreateUserMetadata<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
     #[account(
-        init, 
-        payer = user, 
+        init,
+        payer = user,
         space = 8 + std::mem::size_of::<UserMetadata>(),
         seeds = [
             UserMetadata::IDENT,
             user.key().as_ref(),
-        ],  
+        ],
         bump,
     )]
     pub user_metadata: Box<Account<'info, UserMetadata>>,
@@ -48,14 +57,14 @@ impl<'info> CreateUserMetadata<'info> {
         user_metadata.last_claimed_at = 0;
         user_metadata.referral_count = 0;
         user_metadata.referral_revenue = 0;
-        user_metadata.claim_tickets = [ClaimTicket::default(); USER_CLAIM_TICKET_CAPACITY];        
+        // user_metadata.claim_tickets = [ClaimTicket::default(); USER_CLAIM_TICKET_CAPACITY];
 
         let clock = Clock::get()?;
         let block_time = clock.unix_timestamp;
 
         self.event_emitter.emit_new_event(
-            Some(block_time), 
-            LollysLottoEventData::CreateUserMetadata(CreateUserMetadataEvent {
+            Some(block_time),
+            LollysLottoProgramEventData::CreateUserMetadata(CreateUserMetadataEvent {
                 user: user_metadata.user,
                 user_metadata: user_metadata.key(),
                 created_timestamp: user_metadata.created_timestamp,

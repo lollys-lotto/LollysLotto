@@ -1,6 +1,6 @@
 use crate::{address_calculator::AddressCalculator, event_processing::shared_processing};
-use lollys_lotto::ClaimFeeEvent;
 use log::info;
+use lollys_lotto::ClaimFeeEvent;
 use program_monitor_db::Database;
 
 pub async fn process_claim_fee_event(

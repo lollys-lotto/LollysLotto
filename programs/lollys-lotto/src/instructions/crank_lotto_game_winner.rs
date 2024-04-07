@@ -1,7 +1,12 @@
 pub use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 
-use crate::{constants::USDC_MINT_DEVNET, errors::LollyError, pda_identifier::PDAIdentifier, state::{LottoGame, LottoGameState, LottoGameVault, LottoTicket, UserMetadata}};
+use crate::{
+    constants::USDC_MINT_DEVNET,
+    errors::LollyError,
+    pda_identifier::PDAIdentifier,
+    state::{LottoGame, LottoGameState, LottoGameVault, LottoTicket, UserMetadata},
+};
 
 #[derive(Accounts)]
 #[instruction(winning_numbers: [u8; 6])]
@@ -31,7 +36,7 @@ pub struct CrankLottoGameWinner<'info> {
         bump,
     )]
     pub lotto_game_vault_signer: UncheckedAccount<'info>,
-    
+
     #[account(
         mut,
         associated_token::mint = USDC_MINT_DEVNET,
@@ -84,7 +89,7 @@ pub struct CrankLottoGameWinner<'info> {
             winning_numbers[3].to_le_bytes().as_ref(),
             winning_numbers[4].to_le_bytes().as_ref(),
             winning_numbers[5].to_le_bytes().as_ref(),
-        ], 
+        ],
         bump
     )]
     pub lotto_ticket: Box<Account<'info, LottoTicket>>,
@@ -120,10 +125,10 @@ impl<'info> CrankLottoGameWinner<'info> {
         }
 
         // CHECK: Check if the user has already declared the winner
-        if lotto_ticket.is_winner !=0 {
+        if lotto_ticket.is_winner != 0 {
             return Err(LollyError::AlreadyDeclaredWinner.into());
         }
-        
+
         lotto_game.state = LottoGameState::Finished;
 
         lotto_game.winning_numbers = winning_numbers;

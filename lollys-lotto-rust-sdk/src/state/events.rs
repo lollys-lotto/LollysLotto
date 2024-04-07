@@ -1,20 +1,13 @@
 pub use anchor_client::{
     anchor_lang::solana_program::pubkey::Pubkey,
-    solana_client::{
-        nonblocking::rpc_client::RpcClient as NonBlockingRpcClient,
-        rpc_client,
-    }
+    solana_client::{nonblocking::rpc_client::RpcClient as NonBlockingRpcClient, rpc_client},
 };
 use lollys_lotto::state::EventEmitter;
 
 use crate::{
-    error::Result, 
-    utils::{
-        get_state_blocking, 
-        get_state, 
-    },
+    error::Result,
+    utils::{get_state, get_state_blocking},
 };
-
 
 pub async fn get_event_emitter(
     address: &Pubkey,

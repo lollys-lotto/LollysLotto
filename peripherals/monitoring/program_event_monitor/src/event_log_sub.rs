@@ -74,7 +74,7 @@ pub trait ProgramEventLogSubscriber: Clone + Send + Sync + 'static {
         event: Self::Event,
     );
 
-    /// Continually watch for the emission of SSLv2 program events,
+    /// Continually watch for the emission of LollysLotto program events,
     /// by using the Solana RPC Websockets `logs_subscribe`.
     ///
     /// Whenever an event is found, process the event for DB insertion.

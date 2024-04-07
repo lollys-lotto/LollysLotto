@@ -50,9 +50,15 @@ pub enum LollyError {
 
     #[msg("Game not finished")]
     GameNotFinished,
+
+    #[msg("No rewards to claim from vault")]
+    NoRewardsToClaimFromVault,
+
+    #[msg("Not sufficient rewards in vault")]
+    NotSufficientRewardsInVault,
 }
 
-pub const NUM_ERR_VARIANTS: u32 = 16;
+pub const NUM_ERR_VARIANTS: u32 = 18;
 
 impl TryInto<LollyError> for u32 {
     // If the u32 is not within the bounds of [ERROR_CODE_OFFSET] and
@@ -67,8 +73,6 @@ impl TryInto<LollyError> for u32 {
         }
     }
 }
-
-
 
 #[error_code]
 #[derive(Eq, PartialEq)]

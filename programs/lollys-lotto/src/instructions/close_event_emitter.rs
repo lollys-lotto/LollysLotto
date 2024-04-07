@@ -19,10 +19,9 @@ pub struct CloseEventEmitter<'info> {
     pub event_emitter: Box<Account<'info, EventEmitter>>,
 
     pub system_program: Program<'info, System>,
-
 }
 
-impl <'info> CloseEventEmitter<'info> {
+impl<'info> CloseEventEmitter<'info> {
     pub fn process(&self) -> Result<()> {
         Ok(())
     }

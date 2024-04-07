@@ -25,7 +25,6 @@ impl GeneratedAccount for NotAdmin {
         SystemAccount
     }
 
-
     fn lamports(&self) -> u64 {
         THOUSAND_SOL
     }
@@ -55,6 +54,4 @@ impl GeneratedAccount for NotAdminUsdc {
     fn owner(&self) -> Pubkey {
         spl_token::ID
     }
-
-    
 }

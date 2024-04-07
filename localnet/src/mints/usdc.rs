@@ -3,7 +3,6 @@ use lollys_lotto_rust_sdk::constants::USDC_DEVNET_MINT;
 use solana_devtools_localnet::{localnet_account::Mint, GeneratedAccount};
 use solana_sdk::pubkey::Pubkey;
 
-
 pub struct TestUsdc;
 
 impl GeneratedAccount for TestUsdc {

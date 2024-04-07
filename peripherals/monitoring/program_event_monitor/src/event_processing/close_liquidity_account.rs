@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
-use lollys_lotto::CloseLiquidityAccountEvent;
 use log::info;
+use lollys_lotto::CloseLiquidityAccountEvent;
 use program_monitor_db::{utils::type_conversions::i64_to_naive_datetime, Database};
 
 pub async fn process_close_liquidity_account(
