@@ -2,16 +2,16 @@ use anchor_lang::{
     prelude::*,
     solana_program::{instruction::Instruction, program::invoke_signed},
 };
-use anchor_spl::{
-    associated_token::AssociatedToken,
-    token::{Token, TokenAccount},
-};
+use anchor_spl::token::{Token, TokenAccount};
 
 use crate::{
     constants::{LOLLY_MINT, USDC_MINT_DEVNET},
-    errors::LollyError,
+    errors::LollysLottoError,
     pda_identifier::PDAIdentifier,
-    state::lolly_burn_state::LollyBurnState,
+    state::{
+        lolly_burn_state::LollyBurnState, EventEmitter, LollysLottoProgramEventData,
+        SwapUsdcLollyEvent,
+    },
 };
 
 mod jupiter {
@@ -57,7 +57,7 @@ pub struct SwapUsdcLolly<'info> {
 
     /// token_out_mint to be swapped using jupiter
     /// Mint address of the LOLLY token
-    // #[account(address = LOLLY_MINT @LollyError::OnlySwapToLOLLYAllowed)]
+    // #[account(address = LOLLY_MINT @LollysLottoError::OnlySwapToLOLLYAllowed)]
     // pub lolly_mint: Account<'info, Mint>,
 
     /// associated_token_account of token_out_mint
@@ -69,9 +69,11 @@ pub struct SwapUsdcLolly<'info> {
     )]
     pub lolly_burn_state_lolly_vault: Box<Account<'info, TokenAccount>>,
 
+    #[account(mut)]
+    pub event_emitter: Box<Account<'info, EventEmitter>>,
+
     pub jupiter_program: Program<'info, Jupiter>,
     pub token_program: Program<'info, Token>,
-    pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
 }
 
@@ -85,35 +87,34 @@ pub fn swap_usdc_lolly<'a, 'b, 'c: 'info, 'info>(
     let jupiter_source_token_account: Account<TokenAccount> =
         Account::try_from_unchecked(&ctx.remaining_accounts[3])?;
 
+    if jupiter_source_token_account.mint != USDC_MINT_DEVNET {
+        return err!(LollysLottoError::OnlySwapFromUSDCAllowed);
+    }
     if (jupiter_source_token_account.mint != ctx.accounts.lolly_burn_state_usdc_vault.mint)
         && (jupiter_source_token_account.key() != ctx.accounts.lolly_burn_state_usdc_vault.key())
     {
-        return err!(LollyError::JupiterIxSourceTokenAccountMismatch);
+        return err!(LollysLottoError::JupiterIxSourceTokenAccountMismatch);
     }
 
     // 6th account in remaining_accounts is the destination token account/LOLLY account
     let jupiter_destination_token_account: Account<TokenAccount> =
         Account::try_from_unchecked(&ctx.remaining_accounts[6])?;
 
+    if jupiter_destination_token_account.mint != LOLLY_MINT {
+        return err!(LollysLottoError::OnlySwapToLOLLYAllowed);
+    }
+
     if (jupiter_destination_token_account.mint != ctx.accounts.lolly_burn_state_lolly_vault.mint)
         && (jupiter_destination_token_account.key()
             != ctx.accounts.lolly_burn_state_lolly_vault.key())
     {
-        return err!(LollyError::JupiterIxDestinationTokenAccountMismatch);
+        return err!(LollysLottoError::JupiterIxDestinationTokenAccountMismatch);
     }
 
-    // if (jupiter_source_token_account.owner != ctx.accounts.lolly_burn_state.key())
-    //     && (jupiter_destination_token_account.owner != ctx.accounts.lolly_burn_state.key())
-    // {
-    //     return err!(LollyError::TokenAccountAuthorityMismatch);
-    // }
-
-    if jupiter_destination_token_account.mint != LOLLY_MINT {
-        return err!(LollyError::OnlySwapToLOLLYAllowed);
-    }
-
-    if jupiter_source_token_account.mint != USDC_MINT_DEVNET {
-        return err!(LollyError::OnlySwapFromUSDCAllowed);
+    if (jupiter_source_token_account.owner != ctx.accounts.lolly_burn_state.key())
+        && (jupiter_destination_token_account.owner != ctx.accounts.lolly_burn_state.key())
+    {
+        return err!(LollysLottoError::TokenAccountAuthorityMismatch);
     }
 
     let accounts: Vec<AccountMeta> = ctx
@@ -150,6 +151,15 @@ pub fn swap_usdc_lolly<'a, 'b, 'c: 'info, 'info>(
             &[ctx.accounts.lolly_burn_state.bump],
         ]],
     );
+
+    let block_time = Clock::get()?.unix_timestamp;
+    ctx.accounts.event_emitter.emit_new_event(
+        Some(block_time),
+        LollysLottoProgramEventData::SwapUsdcLolly(SwapUsdcLollyEvent {
+            authority: *ctx.accounts.authority.key,
+            lolly_burn_state: *ctx.accounts.lolly_burn_state.to_account_info().key,
+        }),
+    )?;
 
     Ok(())
 }

@@ -1,6 +1,6 @@
 use crate::{
     constants::USDC_MINT_DEVNET,
-    errors::LollyError,
+    errors::LollysLottoError,
     pda_identifier::PDAIdentifier,
     state::{ClaimUserRewardsEvent, EventEmitter, LollysLottoProgramEventData, UserMetadata},
 };
@@ -35,7 +35,7 @@ pub struct ClaimUserRewards<'info> {
     pub usdc_mint: Box<Account<'info, Mint>>,
     #[account(
         mut,
-        constraint = user_rewards_vault.amount > 0 @LollyError::NoRewardsToClaimFromVault,
+        constraint = user_rewards_vault.amount > 0 @LollysLottoError::NoRewardsToClaimFromVault,
         associated_token::mint = usdc_mint,
         associated_token::authority = user_metadata,
     )]
@@ -53,11 +53,11 @@ impl<'info> ClaimUserRewards<'info> {
         let amount_left_to_claim =
             user_metadata.total_amount_won - user_metadata.total_amount_claimed;
         if amount_left_to_claim == 0 {
-            return Err(LollyError::NoRewardsToClaimFromVault.into());
+            return Err(LollysLottoError::NoRewardsToClaimFromVault.into());
         }
 
         if amount_to_be_claimed > amount_left_to_claim {
-            return Err(LollyError::NotSufficientRewardsInVault.into());
+            return Err(LollysLottoError::NotSufficientRewardsInVault.into());
         }
 
         token::transfer(
@@ -90,6 +90,7 @@ impl<'info> ClaimUserRewards<'info> {
                 user_metadata: user_metadata.key(),
                 user_rewards_vault: self.user_rewards_vault.key(),
                 amount_to_be_claimed,
+                total_amount_claimed: user_metadata.total_amount_claimed,
             }),
         )?;
 

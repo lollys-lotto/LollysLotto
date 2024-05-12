@@ -32,8 +32,8 @@ impl<'info> CreateLollysLotto<'info> {
         lollys_lotto.lotto_game_count = 0;
         lollys_lotto.bump = bump;
 
-        let clock = Clock::get()?;
-        let block_time = clock.unix_timestamp;
+        let block_time = Clock::get()?.unix_timestamp;
+
         self.event_emitter.emit_new_event(
             Some(block_time),
             LollysLottoProgramEventData::CreateLollysLotto(CreateLollysLottoEvent {

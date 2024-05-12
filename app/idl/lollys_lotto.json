@@ -1058,7 +1058,7 @@
       }
     },
     {
-      "name": "CrankLottoGameWinnerEvent",
+      "name": "CrankLottoGameWinnersEvent",
       "docs": [
         "Event emitted when a user cranks a lotto game winner."
       ],
@@ -1294,7 +1294,7 @@
             "name": "BuyLottoTicket"
           },
           {
-            "name": "CrankLottoGameWinner"
+            "name": "CrankLottoGameWinners"
           },
           {
             "name": "CreateLollyBurnState"
@@ -1355,10 +1355,10 @@
             ]
           },
           {
-            "name": "CrankLottoGameWinner",
+            "name": "CrankLottoGameWinners",
             "fields": [
               {
-                "defined": "CrankLottoGameWinnerEvent"
+                "defined": "CrankLottoGameWinnersEvent"
               }
             ]
           },

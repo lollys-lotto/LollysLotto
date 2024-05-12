@@ -18,12 +18,16 @@ RUST_LOG="info"
 
 # Build the LollysLotto program for release
 [tasks.build_release]
-args = ["build", "-p", "lollys_lotto", "--verifiable"]
-command = "anchor"
+args = ["build", "-p", "lollys-lotto", "--verifiable"]
+command = "../../anchor/target/release/anchor"
+# command = "anchor"
 
 [tasks.build_dev]
-args = ["build", "-p", "lollys_lotto", "--", "--features", "debug-msg"]
-command = "anchor"
+# args = ["build", "-p", "lollys_lotto", "--", "--features", "debug-msg"]
+args = ["build", "-p", "lollys_lotto"]
+command = "../../anchor/target/release/anchor"
+# command = "anchor"
+
 
 [tasks.copy_program_key]
 args = [".keys/lollys_lotto-keypair.json", "target/deploy/lollys_lotto-keypair.json"]

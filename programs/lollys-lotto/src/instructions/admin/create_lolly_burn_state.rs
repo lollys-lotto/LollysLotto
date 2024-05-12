@@ -7,7 +7,7 @@ use anchor_spl::{
 use crate::{
     constants::{LOLLY_MINT, USDC_MINT_DEVNET},
     pda_identifier::PDAIdentifier,
-    state::*,
+    state::{CreateLollyBurnStateEvent, EventEmitter, LollyBurnState, LollysLottoProgramEventData},
 };
 
 #[derive(Accounts)]
@@ -64,6 +64,25 @@ impl<'info> CreateLollyBurnState<'info> {
         let lolly_burn_state = &mut self.lolly_burn_state;
         lolly_burn_state.bump = bump;
         lolly_burn_state.authority = self.authority.key();
+
+        let block_time = Clock::get()?.unix_timestamp;
+        self.event_emitter.emit_new_event(
+            Some(block_time),
+            LollysLottoProgramEventData::CreateLollyBurnState(CreateLollyBurnStateEvent {
+                authority: *self.authority.key,
+                lolly_burn_state: *lolly_burn_state.to_account_info().key,
+                lolly_mint: *self.lolly_mint.to_account_info().key,
+                lolly_burn_state_lolly_vault: *self
+                    .lolly_burn_state_lolly_vault
+                    .to_account_info()
+                    .key,
+                usdc_mint: *self.usdc_mint.to_account_info().key,
+                lolly_burn_state_usdc_vault: *self
+                    .lolly_burn_state_usdc_vault
+                    .to_account_info()
+                    .key,
+            }),
+        )?;
         Ok(())
     }
 }

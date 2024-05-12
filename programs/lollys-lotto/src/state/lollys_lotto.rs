@@ -4,9 +4,9 @@ use anchor_lang::prelude::*;
 #[derive(Debug)]
 #[account]
 pub struct LollysLotto {
-    pub bump: u8,
-    pub lotto_game_count: u64,
-    pub authority: Pubkey,
+    pub bump: u8,              // 1
+    pub lotto_game_count: u64, // 8
+    pub authority: Pubkey,     // 32
 }
 
 impl PDAIdentifier for LollysLotto {
@@ -18,6 +18,8 @@ impl PDAIdentifier for LollysLotto {
 }
 
 impl LollysLotto {
+    pub const SIZE: usize = 1 + 8 + 32;
+
     pub fn signer_address(authority: Pubkey) -> Pubkey {
         Self::get_address(&[authority.as_ref()])
     }

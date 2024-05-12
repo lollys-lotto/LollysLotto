@@ -22,7 +22,7 @@ pub enum InstructionType {
     CloseEventEmitter,
     CloseLollysLotto,
     CloseLottoGame,
-    CrankLottoGameWinner,
+    CrankLottoGameWinners,
     CreateLollyBurnState,
     CreateLollysLotto,
     CreateUserMetadata,
@@ -42,8 +42,8 @@ impl From<&LollysLottoProgramEvent> for InstructionType {
             LollysLottoProgramEventData::CloseEventEmitter(_) => InstructionType::CloseEventEmitter,
             LollysLottoProgramEventData::CloseLollysLotto(_) => InstructionType::CloseLollysLotto,
             LollysLottoProgramEventData::CloseLottoGame(_) => InstructionType::CloseLottoGame,
-            LollysLottoProgramEventData::CrankLottoGameWinner(_) => {
-                InstructionType::CrankLottoGameWinner
+            LollysLottoProgramEventData::CrankLottoGameWinners(_) => {
+                InstructionType::CrankLottoGameWinners
             }
             LollysLottoProgramEventData::CreateLollyBurnState(_) => {
                 InstructionType::CreateLollyBurnState

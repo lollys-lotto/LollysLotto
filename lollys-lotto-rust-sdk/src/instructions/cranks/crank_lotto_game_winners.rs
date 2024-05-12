@@ -1,32 +1,37 @@
+use lollys_lotto::state::LottoTicketNumbers;
+
 use crate::instructions::*;
+use lollys_lotto::instruction::CrankLottoGameWinners;
 
 pub fn crank_lotto_game_winner(
-    winning_numbers: [u8; 6],
-    winning_amount: u64,
+    round: u64,
+    winning_numbers: LottoTicketNumbers,
+    winning_numbers_index: [i64; 4],
     authority: &Pubkey,
     user: &Pubkey,
     user_metadata: &Pubkey,
-    user_rewards_vault: &Pubkey,
     lotto_game: &Pubkey,
     lotto_game_vault_signer: &Pubkey,
     lotto_game_vault: &Pubkey,
     lotto_ticket: &Pubkey,
+    event_emitter: &Pubkey,
 ) -> Instruction {
-    let data = lollys_lotto::instruction::CrankLottoGameWinner {
+    let data = CrankLottoGameWinners {
+        round,
         winning_numbers,
-        winning_amount,
+        winning_numbers_index,
     }
     .data();
-    let accounts = lollys_lotto::accounts::CrankLottoGameWinner {
+    let accounts = lollys_lotto::accounts::CrankLottoGameWinners {
         authority: *authority,
         lotto_game: *lotto_game,
         lotto_game_vault_signer: *lotto_game_vault_signer,
         lotto_game_vault: *lotto_game_vault,
-        token_program: token::ID,
         user: *user,
         user_metadata: *user_metadata,
-        user_rewards_vault: *user_rewards_vault,
         lotto_ticket: *lotto_ticket,
+        event_emitter: *event_emitter,
+        token_program: token::ID,
     }
     .to_account_metas(None);
     Instruction {

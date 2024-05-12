@@ -2,20 +2,20 @@ pub mod mints;
 pub mod state;
 pub mod traits;
 pub mod user_accounts;
-pub use crate::{mints::*, state::TestEventEmitter, user_accounts::*};
+pub use crate::{mints::*, user_accounts::*};
 use anchor_lang::solana_program::instruction::Instruction;
 use solana_devtools_localnet::{GeneratedAccount, LocalnetConfiguration};
 use solana_sdk::{compute_budget::ComputeBudgetInstruction, pubkey};
 
 pub fn primary_localnet() -> anyhow::Result<LocalnetConfiguration> {
     let localnet_accounts = vec![
-        TestEventEmitter.to_localnet_account(),
         NotAdmin.to_localnet_account(),
         NotAdminUsdc.to_localnet_account(),
         TestAdmin.to_localnet_account(),
-        TestUser.to_localnet_account(),
-        TestUserUsdc.to_localnet_account(),
-        // TestUserMetadata.to_localnet_account(),
+        TestUser1.to_localnet_account(),
+        TestUserUsdc1.to_localnet_account(),
+        TestUser2.to_localnet_account(),
+        TestUserUsdc2.to_localnet_account(),
         TestUsdc.to_localnet_account(),
     ];
 

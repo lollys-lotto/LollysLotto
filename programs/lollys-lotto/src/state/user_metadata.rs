@@ -1,11 +1,8 @@
 pub use anchor_lang::prelude::*;
 use anchor_spl::associated_token::get_associated_token_address;
 
-use crate::pda_identifier::PDAIdentifier;
-
-pub const USER_CLAIM_TICKET_CAPACITY: usize = 64;
-
 use crate::constants::USDC_MINT_DEVNET;
+use crate::pda_identifier::PDAIdentifier;
 
 #[account]
 #[derive(Debug, Copy)]
@@ -21,7 +18,6 @@ pub struct UserMetadata {
     pub last_claimed_at: i64,
     pub referral_count: u64,
     pub referral_revenue: u64,
-    // pub claim_tickets: [ClaimTicket; USER_CLAIM_TICKET_CAPACITY],
 }
 
 impl PDAIdentifier for UserMetadata {
@@ -41,26 +37,13 @@ impl UserMetadata {
         Self::get_address_with_bump(&[user.as_ref()])
     }
 
-    pub fn user_rewards_holding_address(user: &Pubkey) -> Pubkey {
-        get_associated_token_address(&Self::address_for_user(user), &USDC_MINT_DEVNET)
+    pub fn user_rewards_vault_address(user: Pubkey) -> Pubkey {
+        get_associated_token_address(&Self::address(user), &USDC_MINT_DEVNET)
     }
 
     pub fn from_buffer(buf: &mut &[u8]) -> Result<Self> {
         Self::try_deserialize(buf)
     }
-
-    pub fn address_for_user(user: &Pubkey) -> Pubkey {
-        Self::get_address(&[user.as_ref()])
-    }
-
-    // pub fn get_claimable_indices(&self, now: i64) -> Vec<u8> {
-    //     self.claim_tickets
-    //         .iter()
-    //         .enumerate()
-    //         .filter(|(_, t)| **t != ClaimTicket::default() && t.created_at < now - SEVEN_DAYS)
-    //         .map(|(i, _)| u8::try_from(i).unwrap())
-    //         .collect()
-    // }
 }
 
 #[repr(u64)]

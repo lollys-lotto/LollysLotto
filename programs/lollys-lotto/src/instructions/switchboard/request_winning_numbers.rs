@@ -1,8 +1,12 @@
 use anchor_lang::prelude::*;
 use solana_randomness_service::program::SolanaRandomnessService;
 use solana_randomness_service::TransactionOptions;
-use switchboard_solana::prelude::*;
-use switchboard_solana::utils::get_ixn_discriminator;
+use switchboard_solana::{utils::get_ixn_discriminator, NativeMint};
+
+use anchor_spl::{
+    associated_token::AssociatedToken,
+    token::{Mint, Token},
+};
 
 use crate::pda_identifier::PDAIdentifier;
 use crate::state::{
@@ -59,11 +63,11 @@ pub struct RequestWinningNumbers<'info> {
         seeds = [
             LottoGame::IDENT,
             authority.key().as_ref(),
-            lotto_game.round.to_le_bytes().as_ref(),
+            lotto_game.load()?.round.to_le_bytes().as_ref(),
         ],
-        bump = lotto_game.bump,
+        bump = lotto_game.load()?.bump,
     )]
-    pub lotto_game: Box<Account<'info, LottoGame>>,
+    pub lotto_game: AccountLoader<'info, LottoGame>,
 
     #[account(mut)]
     pub event_emitter: Box<Account<'info, EventEmitter>>,
@@ -98,7 +102,7 @@ pub fn request_winning_numbers(
                 associated_token_program: ctx.accounts.associated_token_program.to_account_info(),
             },
         ),
-        6, // Request 8 bytes of randomness
+        6, // Request 6 bytes of randomness
         solana_randomness_service::Callback {
             program_id: crate::ID,
             accounts: vec![
@@ -115,16 +119,15 @@ pub fn request_winning_numbers(
             compute_unit_price: Some(100),
         }),
     )?;
-
     // Here we can emit some event to index our requests
     let event_emitter = &mut ctx.accounts.event_emitter;
     let lotto_game = &mut ctx.accounts.lotto_game;
-    let clock = Clock::get()?;
-    let block_time = clock.unix_timestamp;
+    let block_time = Clock::get()?.unix_timestamp;
     event_emitter.emit_new_event(
         Some(block_time),
         LollysLottoProgramEventData::RequestWinningNumbers(RequestWinningNumbersEvent {
-            round: lotto_game.round,
+            lotto_game: lotto_game.key(),
+            round: lotto_game.load()?.round,
         }),
     )?;
 

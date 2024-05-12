@@ -18,9 +18,13 @@ debug-msg = []
 
 [dependencies]
 anchor-lang = {workspace = true}
-anchor-spl = "0.29.0"
+anchor-spl = {workspace = true}
+bytemuck = { workspace = true }
+num-traits = {workspace = true}
+rust_decimal = {workspace = true}
 solana-program = {workspace = true}
-toml_edit = "=0.21.0"
-switchboard-solana = "0.29.99"
-solana-randomness-service = { version = "1.0.2", features = ["cpi"] }
-num-traits = "0.2"
+solana-randomness-service = {workspace = true}
+switchboard-solana = {workspace = true}
+# solana-address-lookup-table-program = {workspace = true}
+# switchboard-on-demand = {workspace = true}
+toml_edit = {workspace = true}

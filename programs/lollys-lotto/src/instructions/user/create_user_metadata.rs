@@ -67,6 +67,7 @@ impl<'info> CreateUserMetadata<'info> {
             LollysLottoProgramEventData::CreateUserMetadata(CreateUserMetadataEvent {
                 user: user_metadata.user,
                 user_metadata: user_metadata.key(),
+                user_rewards_vault: self.user_rewards_vault.key(),
                 created_timestamp: user_metadata.created_timestamp,
             }),
         )?;

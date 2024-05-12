@@ -5,6 +5,7 @@ pub fn burn_lolly(
     authority: &Pubkey,
     lolly_burn_state: &Pubkey,
     lolly_burn_state_lolly_vault: &Pubkey,
+    event_emitter: &Pubkey,
 ) -> Instruction {
     let data = lollys_lotto::instruction::BurnLolly.data();
 
@@ -13,6 +14,7 @@ pub fn burn_lolly(
         authority: *authority,
         lolly_burn_state: *lolly_burn_state,
         lolly_burn_state_lolly_vault: *lolly_burn_state_lolly_vault,
+        event_emitter: *event_emitter,
         token_program: token::ID,
     }
     .to_account_metas(None);

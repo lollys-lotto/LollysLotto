@@ -1,8 +1,10 @@
+use lollys_lotto::state::lotto_ticket::LottoTicketNumbers;
+
 use crate::instructions::*;
 
 pub fn buy_lotto_ticket(
     round: u64,
-    numbers: [u8; 6],
+    numbers: LottoTicketNumbers,
     authority: &Pubkey,
     user: &Pubkey,
     user_metadata: &Pubkey,

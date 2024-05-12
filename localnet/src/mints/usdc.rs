@@ -1,4 +1,4 @@
-use crate::TestUser;
+use crate::TestAdmin;
 use lollys_lotto_rust_sdk::constants::USDC_DEVNET_MINT;
 use solana_devtools_localnet::{localnet_account::Mint, GeneratedAccount};
 use solana_sdk::pubkey::Pubkey;
@@ -13,7 +13,7 @@ impl GeneratedAccount for TestUsdc {
     }
 
     fn generate(&self) -> Self::Data {
-        Mint::new(Some(TestUser.address()), 0, 6)
+        Mint::new(Some(TestAdmin.address()), 0, 6)
     }
 
     fn owner(&self) -> Pubkey {

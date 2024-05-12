@@ -1,20 +1,25 @@
 use lazy_static::lazy_static;
-use lollys_lotto::{
-    state::{LollyBurnState, LollysLotto, LottoGame, LottoTicket, UserMetadata},
-    Pubkey,
+use lollys_lotto::state::{
+    EventEmitter, LollyBurnState, LollysLotto, LottoGame, LottoTicket, LottoTicketNumbers,
+    UserMetadata,
+};
+use lollys_lotto_rust_sdk::instructions::{
+    buy_lotto_ticket, crank_lotto_game_closed, crank_lotto_game_winner,
+    crank_transfer_winning_amount_to_user_rewards_vault, create_event_emitter, create_lollys_lotto,
+    create_user_metadata, start_lotto_game, test_emit_winning_numbers,
 };
 use solana_devtools_localnet::{
-    localnet_account::TokenAccount, GeneratedAccount, LocalnetConfiguration, TransactionSimulator,
+    localnet_account::TokenAccount, GeneratedAccount, LocalnetConfiguration, ProcessedMessage,
+    TransactionSimulator,
 };
+use solana_program::pubkey::Pubkey;
 use std::{ops::Deref, sync::Mutex};
 
 use lolly_lotto_localnet::{
     mints::TestUsdc,
     primary_localnet,
-    state::TestEventEmitter,
     traits::HasMockRuntime,
-    user_accounts::{TestAdmin, TestUser},
-    TestUserUsdc,
+    user_accounts::{TestAdmin, TestUser1, TestUser2, TestUserUsdc1, TestUserUsdc2},
 };
 
 pub const DEFAULT_MAX_SLOT_PRICE_STALENESS: u8 = 11;
@@ -38,12 +43,12 @@ fn test_config() -> LocalnetConfiguration {
 
 pub struct TestState {
     pub runtime: TransactionSimulator,
-    pub test_event_emitter: Pubkey,
     pub test_admin: Pubkey,
     pub test_usdc: Pubkey,
-    pub test_user: Pubkey,
-    pub test_user_usdc: Pubkey,
-    // pub test_user_metadata: Pubkey,
+    pub test_user1: Pubkey,
+    pub test_user_usdc1: Pubkey,
+    pub test_user2: Pubkey,
+    pub test_user_usdc2: Pubkey,
     pub lollys_lotto: Pubkey,
 }
 
@@ -53,40 +58,44 @@ impl HasMockRuntime for TestState {
     }
 
     fn payer(&self) -> Pubkey {
-        TestUser.address()
+        TestUser1.address()
     }
 }
 
 impl TestState {
     pub fn new() -> Self {
-        let test_event_emitter = TestEventEmitter.address();
         let test_admin = TestAdmin.address();
         let test_usdc = TestUsdc.address();
-        let test_user = TestUser.address();
-        let test_user_usdc = TestUserUsdc.address();
-        // let test_user_metadata = TestUserMetadata.address();
+        let test_user1 = TestUser1.address();
+        let test_user_usdc1 = TestUserUsdc1.address();
+        let test_user2 = TestUser2.address();
+        let test_user_usdc2 = TestUserUsdc2.address();
         let runtime = TryInto::<TransactionSimulator>::try_into(
             PRIMARY_LOCALNET_CONFIG.lock().unwrap().deref(),
         )
         .unwrap();
         runtime.update_clock(Some(DEFAULT_MAX_SLOT_PRICE_STALENESS as u64 + 1), None);
         println!("test_admin: {:?}", test_admin);
-        println!("test_user: {:?}", test_user);
+        println!("test_user1: {:?}", test_user1);
         println!(
             "lollys_lotto: LollysLotto::address(test_admin): {:?}",
             LollysLotto::address(test_admin)
         );
-        println!("test_event_emitter: {:?}", test_event_emitter);
         Self {
             runtime,
-            test_event_emitter,
             test_admin,
             test_usdc,
-            test_user,
-            test_user_usdc,
-            // test_user_metadata,
+            test_user1,
+            test_user_usdc1,
+            test_user2,
+            test_user_usdc2,
             lollys_lotto: LollysLotto::address(test_admin),
         }
+    }
+
+    pub fn get_event_emitter(&self, event_emitter_pubkey: Pubkey) -> EventEmitter {
+        self.get_account_as::<EventEmitter>(&event_emitter_pubkey)
+            .expect("couldn't find Event Emitter account")
     }
 
     pub fn get_lollys_lotto(&self, lollys_lotto_pubkey: Pubkey) -> LollysLotto {
@@ -114,10 +123,196 @@ impl TestState {
             .expect("couldn't find Lolly Burn State account")
     }
 
-    pub fn get_ata_balance(&self, lotto_game_vault_pubkey: Pubkey) -> u64 {
+    pub fn get_ata_balance(&self, associated_token_address: Pubkey) -> u64 {
         let state: TokenAccount = self
-            .get_account_as(&lotto_game_vault_pubkey)
-            .expect("Could not find Lotto Game Vault account");
+            .get_account_as(&associated_token_address)
+            .expect("Could not find Associated Token account");
         state.amount
+    }
+
+    pub fn execute_create_event_emitter_ix(
+        &self,
+        event_emitter_pda: Pubkey,
+        authority: Pubkey,
+    ) -> ProcessedMessage {
+        self.execute([create_event_emitter(&event_emitter_pda, &authority)])
+    }
+
+    pub fn execute_create_lollys_lotto_ix(
+        &self,
+        authority: Pubkey,
+        lollys_lotto_pda: Pubkey,
+        event_emitter_pda: Pubkey,
+    ) -> ProcessedMessage {
+        self.execute([create_lollys_lotto(
+            &authority,
+            &lollys_lotto_pda,
+            &event_emitter_pda,
+        )])
+    }
+
+    pub fn execute_start_lotto_game_ix(
+        &self,
+        round: u64,
+        ticket_price: u64,
+        game_duration: u64,
+        round_name: String,
+        authority: &Pubkey,
+        lollys_lotto: &Pubkey,
+        lotto_game: &Pubkey,
+        lotto_game_vault_signer: &Pubkey,
+        lotto_game_vault: &Pubkey,
+        lotto_game_mint: &Pubkey,
+        event_emitter_pda: &Pubkey,
+    ) -> ProcessedMessage {
+        self.execute([start_lotto_game(
+            round,
+            ticket_price,
+            game_duration,
+            round_name,
+            authority,
+            lollys_lotto,
+            lotto_game,
+            lotto_game_vault_signer,
+            lotto_game_vault,
+            lotto_game_mint,
+            event_emitter_pda,
+        )])
+    }
+
+    pub fn execute_create_user_metadata_ix(
+        &self,
+        user: &Pubkey,
+        user_metadata_pda: &Pubkey,
+        usdc_mint: &Pubkey,
+        user_rewards_vault: &Pubkey,
+        event_emitter_pda: &Pubkey,
+    ) -> ProcessedMessage {
+        self.execute([create_user_metadata(
+            user,
+            user_metadata_pda,
+            usdc_mint,
+            user_rewards_vault,
+            event_emitter_pda,
+        )])
+    }
+
+    pub fn execute_buy_lotto_ticket_ix(
+        &self,
+        round: u64,
+        numbers: LottoTicketNumbers,
+        authority: &Pubkey,
+        user: &Pubkey,
+        user_metadata_pda: &Pubkey,
+        user_usdc_token_account: &Pubkey,
+        lotto_game_mint: &Pubkey,
+        lotto_game: &Pubkey,
+        lotto_game_vault: &Pubkey,
+        lotto_ticket_pda: &Pubkey,
+        event_emitter_pda: &Pubkey,
+    ) -> ProcessedMessage {
+        self.execute([buy_lotto_ticket(
+            round,
+            numbers,
+            authority,
+            user,
+            user_metadata_pda,
+            user_usdc_token_account,
+            lotto_game_mint,
+            lotto_game,
+            lotto_game_vault,
+            lotto_ticket_pda,
+            event_emitter_pda,
+        )])
+    }
+
+    pub fn execute_crank_lotto_game_closed_ix(
+        &self,
+        round: u64,
+        authority: &Pubkey,
+        lotto_game: &Pubkey,
+        event_emitter: &Pubkey,
+    ) -> ProcessedMessage {
+        self.execute([crank_lotto_game_closed(
+            round,
+            authority,
+            lotto_game,
+            event_emitter,
+        )])
+    }
+
+    pub fn execute_test_emit_winning_numbers_ix(
+        &self,
+        result: Vec<u8>,
+        authority: &Pubkey,
+        lotto_game: &Pubkey,
+        event_emitter: &Pubkey,
+    ) -> ProcessedMessage {
+        self.execute([test_emit_winning_numbers(
+            result,
+            authority,
+            lotto_game,
+            event_emitter,
+        )])
+    }
+
+    pub fn execute_crank_lotto_game_winner_ix(
+        &self,
+        round: u64,
+        winning_numbers: LottoTicketNumbers,
+        winning_numbers_index: [i64; 4],
+        authority: &Pubkey,
+        user: &Pubkey,
+        user_metadata_pda: &Pubkey,
+        lotto_game: &Pubkey,
+        lotto_game_vault_signer: &Pubkey,
+        lotto_game_vault: &Pubkey,
+        lotto_ticket: &Pubkey,
+        event_emitter: &Pubkey,
+    ) -> ProcessedMessage {
+        self.execute([crank_lotto_game_winner(
+            round,
+            winning_numbers,
+            winning_numbers_index,
+            authority,
+            user,
+            user_metadata_pda,
+            lotto_game,
+            lotto_game_vault_signer,
+            lotto_game_vault,
+            lotto_ticket,
+            event_emitter,
+        )])
+    }
+
+    pub fn execute_crank_transfer_winning_amount_to_user_rewards_vault_ix(
+        &self,
+        round: u64,
+        winning_numbers: LottoTicketNumbers,
+        number_of_tickets_with_duplicate_numbers: u32,
+        authority: &Pubkey,
+        user: &Pubkey,
+        user_metadata_pda: &Pubkey,
+        user_rewards_vault: &Pubkey,
+        lotto_game: &Pubkey,
+        lotto_game_vault_signer: &Pubkey,
+        lotto_game_vault: &Pubkey,
+        lotto_ticket: &Pubkey,
+        event_emitter: &Pubkey
+    ) -> ProcessedMessage {
+        self.execute([crank_transfer_winning_amount_to_user_rewards_vault(
+            round,
+            winning_numbers,
+            number_of_tickets_with_duplicate_numbers,
+            authority,
+            user,
+            user_metadata_pda,
+            user_rewards_vault,
+            lotto_game,
+            lotto_game_vault_signer,
+            lotto_game_vault,
+            lotto_ticket,
+            event_emitter,
+        )])
     }
 }
