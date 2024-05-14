@@ -1,20 +1,29 @@
 mod utils;
 
-use lolly_lotto_localnet::traits::HasMockRuntime;
+use lolly_lotto_localnet::{traits::HasMockRuntime, TestAdmin, TestAdminLolly};
+use solana_devtools_localnet::GeneratedAccount;
 use solana_program::pubkey::Pubkey;
 
-use lollys_lotto::state::{
-    EventEmitter, LollysLotto, LottoGame, LottoGameState, LottoGameVersion,
-    LottoGameWinningNumbers, LottoTicketNumbers, UserTier, WinningAmountDisbursedState,
-    WinningNumberUpdateState,
+use lollys_lotto::{
+    constants::LOLLY_MINT,
+    state::{
+        EventEmitter, LollysLotto, LottoGame, LottoGameState, LottoGameVersion,
+        LottoGameWinningNumbers, LottoTicketNumbers, UserTier, WinningAmountDisbursedState,
+        WinningNumberUpdateState,
+    },
 };
 
 use utils::test_state::TestState;
 
-use lollys_lotto_rust_sdk::pda::{
-    get_lotto_game_pda_and_bump, get_lotto_game_vault_pda,
-    get_lotto_game_vault_signer_pda_and_bump, get_lotto_ticket_pda_and_bump,
-    get_user_metadata_pda_and_bump, get_user_rewards_vault_address,
+use lollys_lotto_rust_sdk::{
+    constants::USDC_DEVNET_MINT,
+    pda::{
+        get_lolly_burn_state_lolly_vault, get_lolly_burn_state_pda,
+        get_lolly_burn_state_pda_and_bump, get_lolly_burn_state_usdc_vault,
+        get_lotto_game_pda_and_bump, get_lotto_game_vault_pda,
+        get_lotto_game_vault_signer_pda_and_bump, get_lotto_ticket_pda_and_bump,
+        get_user_metadata_pda_and_bump, get_user_rewards_vault_address,
+    },
 };
 
 #[test]
@@ -51,7 +60,7 @@ fn test_create_lollys_lotto() {
 
     // 3. Start Lotto Game  Round 1
     let round1: u64 = 0;
-    let ticket_price1: u64 = 100000;
+    let ticket_price1: u64 = 1000000;
     let game_duration1: u64 = 3600;
     let round_name1 = "Round 1".to_string();
 
@@ -126,7 +135,7 @@ fn test_create_lollys_lotto() {
 
     // 4. Start Lotto Game Round 2 while Round 1 is still open
     let round2: u64 = 1;
-    let ticket_price2: u64 = 100000;
+    let ticket_price2: u64 = 1000000;
     let game_duration2: u64 = 7200;
     let round_name2 = "Round 2".to_string();
 
@@ -244,7 +253,9 @@ fn test_create_lollys_lotto() {
         get_lotto_ticket_pda_and_bump(lotto_game_pda1, user_metadata_pda1, numbers1);
     let prev_user_usdc_balance1 = test_state.get_ata_balance(test_state.test_user_usdc1);
     println!("prev_user_usdc_balance1: {:?}", prev_user_usdc_balance1);
-
+    let prev_lotto_game_vault_balance1 = test_state.get_ata_balance(lotto_game_vault_pda1);
+    println!("prev_lotto_game_vault_balance1: {:?}", prev_lotto_game_vault_balance1);
+    
     test_state.execute_buy_lotto_ticket_ix(
         round1,
         numbers1,
@@ -261,7 +272,7 @@ fn test_create_lollys_lotto() {
 
     let lotto_game1 = test_state.get_lotto_game(lotto_game_pda1);
     assert_eq!(lotto_game1.tickets_sold, 1);
-
+    
     let lotto_ticket1 = test_state.get_lotto_ticket(lotto_ticket_pda1);
     assert_eq!(lotto_ticket1.user, test_state.test_user1);
     assert_eq!(lotto_ticket1.ticket_number, lotto_game1.tickets_sold - 1);
@@ -275,12 +286,15 @@ fn test_create_lollys_lotto() {
     assert_eq!(lotto_ticket1.prize, 0);
 
     let lotto_game_vault_balance1 = test_state.get_ata_balance(lotto_game_vault_pda1);
+    println!("lotto_game_vault_balance1: {:?}", lotto_game_vault_balance1);
+    println!("ticket_price1: {:?}", ticket_price1);
     assert_eq!(lotto_game_vault_balance1, ticket_price1);
 
     let user_rewards_vault_balance1 = test_state.get_ata_balance(user_rewards_vault1);
     assert_eq!(user_rewards_vault_balance1, 0);
 
     let after_user_usdc_balance1 = test_state.get_ata_balance(test_state.test_user_usdc1);
+    println!("after_user_usdc_balance1: {:?}", after_user_usdc_balance1);
     assert_eq!(
         after_user_usdc_balance1,
         prev_user_usdc_balance1 - ticket_price1
@@ -637,8 +651,11 @@ fn test_create_lollys_lotto() {
 
     // 16. Crank Transfer Winning Amount to User Rewards Vault of Jackpot winner
     let prev_user_rewards_vault_balance1 = test_state.get_ata_balance(user_rewards_vault1);
-    println!("prev_user_rewards_vault_balance1: {:?}", prev_user_rewards_vault_balance1);
-    let prev_user_metadata_total_amount_won = user_metadata.total_amount_won; 
+    println!(
+        "prev_user_rewards_vault_balance1: {:?}",
+        prev_user_rewards_vault_balance1
+    );
+    let prev_user_metadata_total_amount_won = user_metadata.total_amount_won;
     test_state.execute_crank_transfer_winning_amount_to_user_rewards_vault_ix(
         round1,
         numbers1,
@@ -662,8 +679,14 @@ fn test_create_lollys_lotto() {
 
     let lotto_game = test_state.get_lotto_game(lotto_game_pda1);
     assert_eq!(lotto_game.state, LottoGameState::Closed);
-    assert_eq!(lotto_game.jackpot_winning_numbers.winning_amount_disbursed, WinningAmountDisbursedState::Disbursed);
-    assert_eq!(lotto_game.tier_1_winning_numbers[0].winning_amount_disbursed, WinningAmountDisbursedState::NotDisbursed);
+    assert_eq!(
+        lotto_game.jackpot_winning_numbers.winning_amount_disbursed,
+        WinningAmountDisbursedState::Disbursed
+    );
+    assert_eq!(
+        lotto_game.tier_1_winning_numbers[0].winning_amount_disbursed,
+        WinningAmountDisbursedState::NotDisbursed
+    );
 
     let lotto_ticket = test_state.get_lotto_ticket(lotto_ticket_pda1);
     assert_eq!(lotto_ticket.prize, jackpot_winning_amount);
@@ -671,14 +694,20 @@ fn test_create_lollys_lotto() {
     assert_eq!(lotto_ticket.is_duplicated, 0);
 
     let user_metadata = test_state.get_user_metadata(user_metadata_pda1);
-    assert_eq!(user_metadata.total_amount_won, prev_user_metadata_total_amount_won + jackpot_winning_amount);
+    assert_eq!(
+        user_metadata.total_amount_won,
+        prev_user_metadata_total_amount_won + jackpot_winning_amount
+    );
 
     let event_emitter = test_state.get_event_emitter(event_emitter_pda);
     assert_eq!(event_emitter.event_id, 14);
 
     // 17. Crank Transfer Winning Amount to User Rewards Vault of Tier 1 winner
     let prev_user_rewards_vault_balance2 = test_state.get_ata_balance(user_rewards_vault2);
-    println!("prev_user_rewards_vault_balance2: {:?}", prev_user_rewards_vault_balance2);
+    println!(
+        "prev_user_rewards_vault_balance2: {:?}",
+        prev_user_rewards_vault_balance2
+    );
     let prev_user_metadata_total_amount_won = user_metadata2.total_amount_won;
     test_state.execute_crank_transfer_winning_amount_to_user_rewards_vault_ix(
         round1,
@@ -703,8 +732,14 @@ fn test_create_lollys_lotto() {
 
     let lotto_game = test_state.get_lotto_game(lotto_game_pda1);
     assert_eq!(lotto_game.state, LottoGameState::Closed);
-    assert_eq!(lotto_game.jackpot_winning_numbers.winning_amount_disbursed, WinningAmountDisbursedState::Disbursed);
-    assert_eq!(lotto_game.tier_1_winning_numbers[0].winning_amount_disbursed, WinningAmountDisbursedState::Disbursed);
+    assert_eq!(
+        lotto_game.jackpot_winning_numbers.winning_amount_disbursed,
+        WinningAmountDisbursedState::Disbursed
+    );
+    assert_eq!(
+        lotto_game.tier_1_winning_numbers[0].winning_amount_disbursed,
+        WinningAmountDisbursedState::Disbursed
+    );
 
     let lotto_ticket = test_state.get_lotto_ticket(lotto_ticket_pda3);
     assert_eq!(lotto_ticket.prize, tier_1_winning_amount);
@@ -712,8 +747,155 @@ fn test_create_lollys_lotto() {
     assert_eq!(lotto_ticket.is_duplicated, 0);
 
     let user_metadata = test_state.get_user_metadata(user_metadata_pda2);
-    assert_eq!(user_metadata.total_amount_won, prev_user_metadata_total_amount_won + tier_1_winning_amount);
+    assert_eq!(
+        user_metadata.total_amount_won,
+        prev_user_metadata_total_amount_won + tier_1_winning_amount
+    );
 
     let event_emitter = test_state.get_event_emitter(event_emitter_pda);
     assert_eq!(event_emitter.event_id, 15);
+
+    // 18. Claim Winning Amount for Jackpot Winner
+    let prev_user_usdc_balance1 = test_state.get_ata_balance(test_state.test_user_usdc1);
+    println!("prev_user_usdc_balance1: {:?}", prev_user_usdc_balance1);
+    let prev_user_rewards_vault_balance1 = test_state.get_ata_balance(user_rewards_vault1);
+    println!(
+        "prev_user_rewards_vault_balance1: {:?}",
+        prev_user_rewards_vault_balance1
+    );
+    let prev_user_metadata_total_amount_claimed = user_metadata.total_amount_claimed;
+    let prev_user_metadata_last_claimed_at = user_metadata.last_claimed_at;
+    println!(
+        "prev_user_metadata_total_amount_claimed: {:?}",
+        prev_user_metadata_total_amount_claimed
+    );
+    println!(
+        "prev_user_metadata_last_claimed_at: {:?}",
+        prev_user_metadata_last_claimed_at
+    );
+
+    let amount_to_be_claimed = jackpot_winning_amount/5;
+    test_state.execute_claim_user_rewards_ix(
+        amount_to_be_claimed,
+        &test_state.test_user1,
+        &test_state.test_user_usdc1,
+        &user_metadata_pda1,
+        &USDC_DEVNET_MINT,
+        &user_rewards_vault1,
+        &event_emitter_pda,
+    );
+
+    let after_user_usdc_balance1 = test_state.get_ata_balance(test_state.test_user_usdc1);
+    println!("after_user_usdc_balance1: {:?}", after_user_usdc_balance1);
+    assert_eq!(
+        after_user_usdc_balance1,
+        prev_user_usdc_balance1 + amount_to_be_claimed
+    );
+
+    let after_user_rewards_vault_balance1 = test_state.get_ata_balance(user_rewards_vault1);
+    assert_eq!(
+        after_user_rewards_vault_balance1,
+        prev_user_rewards_vault_balance1 - amount_to_be_claimed
+    );
+
+    let user_metadata = test_state.get_user_metadata(user_metadata_pda1);
+    assert_eq!(
+        user_metadata.total_amount_claimed,
+        prev_user_metadata_total_amount_claimed + amount_to_be_claimed
+    );
+    assert_eq!(user_metadata.last_claimed_at, test_state.clock().unix_timestamp);
+
+    let event_emitter = test_state.get_event_emitter(event_emitter_pda);
+    assert_eq!(event_emitter.event_id, 16);
+
+    // 19. Create Lolly Burn State Account
+    let (lolly_burn_state_pda, lolly_burn_state_bump) =
+        get_lolly_burn_state_pda_and_bump(test_state.test_admin);
+    let lolly_burn_state_usdc_vault = get_lolly_burn_state_usdc_vault(test_state.test_admin);
+    let lolly_burn_state_lolly_vault = get_lolly_burn_state_lolly_vault(test_state.test_admin);
+
+    test_state.execute_create_lolly_burn_state_ix(
+        &test_state.test_admin,
+        &lolly_burn_state_pda,
+        &LOLLY_MINT,
+        &lolly_burn_state_lolly_vault,
+        &USDC_DEVNET_MINT,
+        &lolly_burn_state_usdc_vault,
+        &event_emitter_pda,
+    );
+
+    let lolly_burn_state = test_state.get_lolly_burn_state(lolly_burn_state_pda);
+    assert_eq!(lolly_burn_state.bump, lolly_burn_state_bump);
+    assert_eq!(lolly_burn_state.authority, test_state.test_admin);
+    assert_eq!(lolly_burn_state.total_lolly_burnt, 0);
+
+    let event_emitter = test_state.get_event_emitter(event_emitter_pda);
+    assert_eq!(event_emitter.event_id, 17);
+
+    // 20. Crank Transfer to Buy and Burn vault
+    let lolly_burn_state = get_lolly_burn_state_pda(test_state.test_admin);
+    let lolly_burn_state_usdc_vault = get_lolly_burn_state_usdc_vault(test_state.test_admin);
+
+    test_state.execute_crank_transfer_to_buy_and_burn_vault_ix(
+        round1,
+        &test_state.test_admin,
+        &lotto_game_pda1,
+        &lotto_game_vault_signer1,
+        &lotto_game_vault_pda1,
+        &lolly_burn_state,
+        &lolly_burn_state_usdc_vault,
+        &event_emitter_pda,
+    );
+
+    let lolly_burn_state_balance = test_state.get_ata_balance(lolly_burn_state_usdc_vault);
+    assert_eq!(lolly_burn_state_balance, 450000);
+
+    let lolly_burn_state = test_state.get_lolly_burn_state(lolly_burn_state);
+    assert_eq!(lolly_burn_state.total_lolly_burnt, 0);
+
+    let event_emitter = test_state.get_event_emitter(event_emitter_pda);
+    assert_eq!(event_emitter.event_id, 18);
+
+    // 21. Transfer Lolly tokens from TestAdminLolly to lolly_burn_state_lolly_vault
+    let prev_lolly_burn_state_lolly_vault_balance = test_state.get_ata_balance(lolly_burn_state_lolly_vault);
+    println!("prev_lolly_burn_state_lolly_vault_balance: {:?}", prev_lolly_burn_state_lolly_vault_balance);
+    let prev_test_admin_lolly_balance = test_state.get_ata_balance(TestAdminLolly.address());
+    println!("prev_test_admin_lolly_balance: {:?}", prev_test_admin_lolly_balance);
+
+    test_state.execute_transfer_spl_token(
+        450000,
+        TestAdminLolly.address(),
+        lolly_burn_state_lolly_vault,
+        TestAdmin.address(),
+    );
+
+    let after_lolly_burn_state_lolly_vault_balance = test_state.get_ata_balance(lolly_burn_state_lolly_vault);
+    println!("after_lolly_burn_state_lolly_vault_balance: {:?}", after_lolly_burn_state_lolly_vault_balance);
+    assert_eq!(after_lolly_burn_state_lolly_vault_balance, 450000);
+
+    let after_test_admin_lolly_balance = test_state.get_ata_balance(TestAdminLolly.address());
+    assert_eq!(after_test_admin_lolly_balance, prev_test_admin_lolly_balance - 450000);
+
+    // 22. Burn Lolly tokens from lolly_burn_state_lolly_vault
+
+    let prev_lolly_burn_state_lolly_vault_balance = test_state.get_ata_balance(lolly_burn_state_lolly_vault);
+    println!("prev_lolly_burn_state_lolly_vault_balance: {:?}", prev_lolly_burn_state_lolly_vault_balance);
+
+    test_state.execute_burn_lolly_ix(
+        &LOLLY_MINT,
+        &test_state.test_admin,
+        &lolly_burn_state_pda,
+        &lolly_burn_state_lolly_vault,
+        &event_emitter_pda,
+    );
+
+    let after_lolly_burn_state_lolly_vault_balance = test_state.get_ata_balance(lolly_burn_state_lolly_vault);
+    assert_eq!(after_lolly_burn_state_lolly_vault_balance, 0);
+
+    let lolly_burn_state = test_state.get_lolly_burn_state(lolly_burn_state_pda);
+    assert_eq!(lolly_burn_state.total_lolly_burnt, 450000);
+
+    let event_emitter = test_state.get_event_emitter(event_emitter_pda);
+    assert_eq!(event_emitter.event_id, 19);
+
 }

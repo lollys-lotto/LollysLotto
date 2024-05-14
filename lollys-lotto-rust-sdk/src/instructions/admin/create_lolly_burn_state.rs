@@ -1,7 +1,6 @@
 use crate::instructions::*;
 
 pub fn create_lolly_burn_state(
-    payer: &Pubkey,
     authority: &Pubkey,
     lolly_burn_state: &Pubkey,
     lolly_mint: &Pubkey,
@@ -13,7 +12,6 @@ pub fn create_lolly_burn_state(
     let data = lollys_lotto::instruction::CreateLollyBurnState.data();
 
     let accounts = lollys_lotto::accounts::CreateLollyBurnState {
-        payer: *payer,
         authority: *authority,
         lolly_burn_state: *lolly_burn_state,
         lolly_mint: *lolly_mint,

@@ -4,13 +4,12 @@ use crate::{
     errors::LollysLottoError,
     pda_identifier::PDAIdentifier,
     state::{
-        CloseLottoTicketEvent, EventEmitter, LollysLottoProgramEventData, LottoGame,
-        LottoGameState, LottoTicket, UserMetadata,
+        CloseLottoTicketEvent, EventEmitter, LollysLottoProgramEventData, LottoGame, LottoGameState, LottoTicket, LottoTicketNumbers, UserMetadata
     },
 };
 
 #[derive(Accounts)]
-#[instruction(round: u64, numbers: [u8; 6])]
+#[instruction(round: u64, numbers: LottoTicketNumbers)]
 pub struct CloseLottoTicket<'info> {
     /// CHECK: Authority of the LottoTicket instance
     pub authority: AccountInfo<'info>,
@@ -42,22 +41,22 @@ pub struct CloseLottoTicket<'info> {
     #[account(
         mut,
         close = user,
-        constraint = lotto_ticket.numbers.number1 == numbers[0] @LollysLottoError::InvalidNumbersInTicket,
-        constraint = lotto_ticket.numbers.number2 == numbers[1] @LollysLottoError::InvalidNumbersInTicket,
-        constraint = lotto_ticket.numbers.number3 == numbers[2] @LollysLottoError::InvalidNumbersInTicket,
-        constraint = lotto_ticket.numbers.number4 == numbers[3] @LollysLottoError::InvalidNumbersInTicket,
-        constraint = lotto_ticket.numbers.number5 == numbers[4] @LollysLottoError::InvalidNumbersInTicket,
-        constraint = lotto_ticket.numbers.jackpot_number == numbers[5] @LollysLottoError::InvalidNumbersInTicket,
+        constraint = lotto_ticket.numbers.number1 == numbers.number1 @LollysLottoError::InvalidNumbersInTicket,
+        constraint = lotto_ticket.numbers.number2 == numbers.number2 @LollysLottoError::InvalidNumbersInTicket,
+        constraint = lotto_ticket.numbers.number3 == numbers.number3 @LollysLottoError::InvalidNumbersInTicket,
+        constraint = lotto_ticket.numbers.number4 == numbers.number4 @LollysLottoError::InvalidNumbersInTicket,
+        constraint = lotto_ticket.numbers.number5 == numbers.number5 @LollysLottoError::InvalidNumbersInTicket,
+        constraint = lotto_ticket.numbers.jackpot_number == numbers.jackpot_number @LollysLottoError::InvalidNumbersInTicket,
         seeds = [
             LottoTicket::IDENT,
             lotto_game.key().as_ref(),
             user_metadata.key().as_ref(),
-            numbers[0].to_le_bytes().as_ref(),
-            numbers[1].to_le_bytes().as_ref(),
-            numbers[2].to_le_bytes().as_ref(),
-            numbers[3].to_le_bytes().as_ref(),
-            numbers[4].to_le_bytes().as_ref(),
-            numbers[5].to_le_bytes().as_ref(),
+            lotto_ticket.numbers.number1.to_le_bytes().as_ref(),
+            lotto_ticket.numbers.number2.to_le_bytes().as_ref(),
+            lotto_ticket.numbers.number3.to_le_bytes().as_ref(),
+            lotto_ticket.numbers.number4.to_le_bytes().as_ref(),
+            lotto_ticket.numbers.number5.to_le_bytes().as_ref(),
+            lotto_ticket.numbers.jackpot_number.to_le_bytes().as_ref(),
         ],
         bump,
     )]
@@ -70,7 +69,7 @@ pub struct CloseLottoTicket<'info> {
 }
 
 impl<'info> CloseLottoTicket<'info> {
-    pub fn process(&mut self, round: u64, numbers: [u8; 6]) -> Result<()> {
+    pub fn process(&mut self, round: u64, numbers: LottoTicketNumbers) -> Result<()> {
         let block_time = Clock::get()?.unix_timestamp;
         self.event_emitter.emit_new_event(
             Some(block_time),

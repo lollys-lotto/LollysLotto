@@ -8,7 +8,7 @@ use solana_sdk::signature::{Keypair, Signer};
 use spl_associated_token_account::get_associated_token_address;
 use spl_token::state::AccountState;
 
-use crate::mints::TestUsdc;
+use crate::{mints::TestUsdc, TestLolly};
 
 lazy_static! {
     pub static ref TEST_ADMIN_KEYPAIR: Keypair = Keypair::new();
@@ -44,6 +44,32 @@ impl GeneratedAccount for TestAdminUsdc {
     fn generate(&self) -> Self::Data {
         TokenAccount::from(spl_token::state::Account {
             mint: TestUsdc.address(),
+            owner: TestAdmin.address(),
+            amount: 100_000_000_000,
+            delegate: Default::default(),
+            state: AccountState::Initialized,
+            is_native: Default::default(),
+            delegated_amount: 0,
+            close_authority: Default::default(),
+        })
+    }
+
+    fn owner(&self) -> Pubkey {
+        spl_token::ID
+    }
+}
+
+pub struct TestAdminLolly;
+impl GeneratedAccount for TestAdminLolly {
+    type Data = TokenAccount;
+
+    fn address(&self) -> Pubkey {
+        get_associated_token_address(&TestAdmin.address(), &TestLolly.address())
+    }
+
+    fn generate(&self) -> Self::Data {
+        TokenAccount::from(spl_token::state::Account {
+            mint: TestLolly.address(),
             owner: TestAdmin.address(),
             amount: 100_000_000_000,
             delegate: Default::default(),

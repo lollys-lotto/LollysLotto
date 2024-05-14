@@ -224,7 +224,6 @@ pub fn crank_transfer_winning_amount_to_user_rewards_vault(
         ),
         lotto_ticket.prize,
     )?;
-    
 
     let block_time = Clock::get()?.unix_timestamp;
     ctx.accounts.event_emitter.emit_new_event(

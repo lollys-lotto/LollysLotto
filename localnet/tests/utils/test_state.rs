@@ -4,9 +4,7 @@ use lollys_lotto::state::{
     UserMetadata,
 };
 use lollys_lotto_rust_sdk::instructions::{
-    buy_lotto_ticket, crank_lotto_game_closed, crank_lotto_game_winner,
-    crank_transfer_winning_amount_to_user_rewards_vault, create_event_emitter, create_lollys_lotto,
-    create_user_metadata, start_lotto_game, test_emit_winning_numbers,
+    burn_lolly, buy_lotto_ticket, claim_user_rewards, crank_lotto_game_closed, crank_lotto_game_winner, crank_transfer_to_buy_and_burn_vault, crank_transfer_winning_amount_to_user_rewards_vault, create_event_emitter, create_lolly_burn_state, create_lollys_lotto, create_user_metadata, start_lotto_game, test_emit_winning_numbers
 };
 use solana_devtools_localnet::{
     localnet_account::TokenAccount, GeneratedAccount, LocalnetConfiguration, ProcessedMessage,
@@ -93,6 +91,30 @@ impl TestState {
         }
     }
 
+    pub fn execute_transfer_spl_token(
+        &self,
+        amount: u64,
+        from: Pubkey,
+        to: Pubkey,
+        authority: Pubkey,
+    ) -> ProcessedMessage {
+        self.execute([spl_token::instruction::transfer(
+            &spl_token::ID,
+            &from,
+            &to,
+            &authority,
+            &[],
+            amount,
+        ).unwrap()])
+    }
+
+    pub fn get_ata_balance(&self, associated_token_address: Pubkey) -> u64 {
+        let state: TokenAccount = self
+            .get_account_as(&associated_token_address)
+            .expect("Could not find Associated Token account");
+        state.amount
+    }
+
     pub fn get_event_emitter(&self, event_emitter_pubkey: Pubkey) -> EventEmitter {
         self.get_account_as::<EventEmitter>(&event_emitter_pubkey)
             .expect("couldn't find Event Emitter account")
@@ -121,13 +143,6 @@ impl TestState {
     pub fn get_lolly_burn_state(&self, lolly_burn_state_pubkey: Pubkey) -> LollyBurnState {
         self.get_account_as::<LollyBurnState>(&lolly_burn_state_pubkey)
             .expect("couldn't find Lolly Burn State account")
-    }
-
-    pub fn get_ata_balance(&self, associated_token_address: Pubkey) -> u64 {
-        let state: TokenAccount = self
-            .get_account_as(&associated_token_address)
-            .expect("Could not find Associated Token account");
-        state.amount
     }
 
     pub fn execute_create_event_emitter_ix(
@@ -298,7 +313,7 @@ impl TestState {
         lotto_game_vault_signer: &Pubkey,
         lotto_game_vault: &Pubkey,
         lotto_ticket: &Pubkey,
-        event_emitter: &Pubkey
+        event_emitter: &Pubkey,
     ) -> ProcessedMessage {
         self.execute([crank_transfer_winning_amount_to_user_rewards_vault(
             round,
@@ -312,6 +327,88 @@ impl TestState {
             lotto_game_vault_signer,
             lotto_game_vault,
             lotto_ticket,
+            event_emitter,
+        )])
+    }
+
+    pub fn execute_create_lolly_burn_state_ix(
+        &self,
+        authority: &Pubkey,
+        lolly_burn_state_pda: &Pubkey,
+        lolly_mint: &Pubkey,
+        lolly_burn_state_lolly_vault: &Pubkey,
+        usdc_mint: &Pubkey,
+        lolly_burn_state_usdc_vault: &Pubkey,
+        event_emitter: &Pubkey,
+    ) -> ProcessedMessage {
+        self.execute([create_lolly_burn_state(
+            authority,
+            lolly_burn_state_pda,
+            lolly_mint,
+            lolly_burn_state_lolly_vault,
+            usdc_mint,
+            lolly_burn_state_usdc_vault,
+            event_emitter,
+        )])
+    }
+
+    pub fn execute_crank_transfer_to_buy_and_burn_vault_ix(
+        &self,
+        round: u64,
+        authority: &Pubkey,
+        lotto_game: &Pubkey,
+        lotto_game_vault_signer: &Pubkey,
+        lotto_game_vault: &Pubkey,
+        lolly_burn_state: &Pubkey,
+        lolly_burn_state_usdc_vault: &Pubkey,
+        event_emitter: &Pubkey,
+    ) -> ProcessedMessage {
+        self.execute([crank_transfer_to_buy_and_burn_vault(
+            round,
+            authority,
+            lotto_game,
+            lotto_game_vault_signer,
+            lotto_game_vault,
+            lolly_burn_state,
+            lolly_burn_state_usdc_vault,
+            event_emitter,
+        )])
+    }
+
+    pub fn execute_claim_user_rewards_ix(
+        &self,
+        amount_to_be_claimed: u64,
+        user: &Pubkey,
+        user_usdc_token_account: &Pubkey,
+        user_metadata_pda: &Pubkey,
+        usdc_mint: &Pubkey,
+        user_rewards_vault: &Pubkey,
+        event_emitter: &Pubkey,
+    ) -> ProcessedMessage {
+        self.execute([claim_user_rewards(
+            amount_to_be_claimed,
+            user,
+            user_usdc_token_account,
+            user_metadata_pda,
+            usdc_mint,
+            user_rewards_vault,
+            event_emitter,
+        )])
+    }
+
+    pub fn execute_burn_lolly_ix(
+        &self,
+        lolly_mint: &Pubkey,
+        authority: &Pubkey,
+        lolly_burn_state: &Pubkey,
+        lolly_burn_state_lolly_vault: &Pubkey,
+        event_emitter: &Pubkey,
+    ) -> ProcessedMessage {
+        self.execute([burn_lolly(
+            lolly_mint,
+            authority,
+            lolly_burn_state,
+            lolly_burn_state_lolly_vault,
             event_emitter,
         )])
     }

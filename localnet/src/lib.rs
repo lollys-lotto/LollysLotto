@@ -12,11 +12,14 @@ pub fn primary_localnet() -> anyhow::Result<LocalnetConfiguration> {
         NotAdmin.to_localnet_account(),
         NotAdminUsdc.to_localnet_account(),
         TestAdmin.to_localnet_account(),
+        TestAdminUsdc.to_localnet_account(),
+        TestAdminLolly.to_localnet_account(),
         TestUser1.to_localnet_account(),
         TestUserUsdc1.to_localnet_account(),
         TestUser2.to_localnet_account(),
         TestUserUsdc2.to_localnet_account(),
         TestUsdc.to_localnet_account(),
+        TestLolly.to_localnet_account(),
     ];
 
     let config = LocalnetConfiguration::new().accounts(localnet_accounts)?;

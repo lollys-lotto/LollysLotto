@@ -83,6 +83,7 @@ pub enum ProgramInstruction {
     CrankLottoGameClosed,
     CrankLottoGameWinners,
     CrankTransferWinningAmountToUserRewardsVault,
+    CrankTransferToBuyAndBurnVault,
 }
 
 /// Created with `EventSigner::new_event()`.
@@ -130,6 +131,7 @@ pub enum LollysLottoProgramEventData {
     CrankLottoGameClosed(CrankLottoGameClosedEvent),
     CrankLottoGameWinners(CrankLottoGameWinnersEvent),
     CrankTransferWinningAmountToUserRewardsVault(CrankTransferWinningAmountToUserRewardsVaultEvent),
+    CrankTransferToBuyAndBurnVault(CrankTransferToBuyAndBurnVaultEvent),
 
     // Add new events here
     DuplicateWinningNumbers(DuplicateWinningNumbersEvent),
@@ -287,7 +289,7 @@ pub struct ClaimUserRewardsEvent {
 #[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
 pub struct CloseLottoTicketEvent {
     pub round: u64,
-    pub numbers: [u8; 6],
+    pub numbers: LottoTicketNumbers,
     pub lotto_game: Pubkey,
     pub lotto_ticket: Pubkey,
     pub user: Pubkey,
@@ -328,4 +330,14 @@ pub struct CrankTransferWinningAmountToUserRewardsVaultEvent {
     pub user: Pubkey,
     pub lotto_ticket: Pubkey,
     pub winning_amount: u64,
+}
+
+#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
+pub struct CrankTransferToBuyAndBurnVaultEvent {
+    pub round: u64,
+    pub lotto_game: Pubkey,
+    pub lolly_burn_state: Pubkey,
+    pub lolly_burn_state_usdc_vault: Pubkey,
+    pub lotto_game_vault: Pubkey,
+    pub buy_and_burn_amount: u64,
 }

@@ -99,9 +99,13 @@ pub mod lollys_lotto {
             number_of_tickets_with_duplicate_numbers,
         )
     }
-    // pub fn crank_transfer_to_buy_and_burn_vault(ctx: Context<CrankTransferToBuyAndBurnVault>) -> Result<()> {
-    //     ctx.accounts.process()
-    // }
+
+    pub fn crank_transfer_to_buy_and_burn_vault(
+        ctx: Context<CrankTransferToBuyAndBurnVault>,
+        round: u64,
+    ) -> Result<()> {
+        crank_transfer_to_buy_and_burn_vault::crank_transfer_to_buy_and_burn_vault(ctx, round)
+    }
 
     // Switchboard instructions
     pub fn process_winning_numbers(
@@ -141,7 +145,7 @@ pub mod lollys_lotto {
     pub fn close_lotto_ticket(
         ctx: Context<CloseLottoTicket>,
         round: u64,
-        numbers: [u8; 6],
+        numbers: LottoTicketNumbers,
     ) -> Result<()> {
         ctx.accounts.process(round, numbers)
     }

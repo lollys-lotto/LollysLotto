@@ -13,7 +13,7 @@ use crate::{
 #[derive(Accounts)]
 pub struct BurnLolly<'info> {
     /// This is the token mint that we want to burn
-    #[account(address = LOLLY_MINT @LollysLottoError::OnlySwapToLOLLYAllowed)]
+    #[account(mut, address = LOLLY_MINT @LollysLottoError::OnlySwapToLOLLYAllowed)]
     pub lolly_mint: Box<Account<'info, Mint>>,
     /// The authority of the LollyBurnState instance
     pub authority: Signer<'info>,
@@ -30,8 +30,7 @@ pub struct BurnLolly<'info> {
     /// LOLLY token account to burn tokens, owned by LollyBurnState PDA
     #[account(
         mut,
-        constraint = lolly_burn_state_lolly_vault.mint == lolly_mint.key() @LollysLottoError::OnlyLOLLYBuringAllowed,
-        associated_token::mint = lolly_mint,
+        associated_token::mint = LOLLY_MINT,
         associated_token::authority = lolly_burn_state,
     )]
     pub lolly_burn_state_lolly_vault: Box<Account<'info, TokenAccount>>,
@@ -41,9 +40,10 @@ pub struct BurnLolly<'info> {
 }
 
 pub fn burn_lolly(ctx: Context<BurnLolly>) -> Result<()> {
-    // if ctx.accounts.lolly_burn_state_lolly_vault.mint != LOLLY_MINT {
-    //     return err!(LollysLottoError::OnlyLOLLYBuringAllowed);
-    // }
+    let authority_pubkey = ctx.accounts.authority.key();
+    let lolly_burn_state = &mut ctx.accounts.lolly_burn_state;
+    let lolly_mint = &ctx.accounts.lolly_mint;
+    let lolly_burn_state_lolly_vault = &ctx.accounts.lolly_burn_state_lolly_vault;
 
     let lolly_vault_balance = ctx.accounts.lolly_burn_state_lolly_vault.amount;
 
@@ -51,30 +51,33 @@ pub fn burn_lolly(ctx: Context<BurnLolly>) -> Result<()> {
         "Burning {:?} Lolly tokens",
         ctx.accounts.lolly_burn_state_lolly_vault.amount
     );
+
     let seeds = &[
         LollyBurnState::IDENT,
-        ctx.accounts.lolly_burn_state.authority.as_ref(),
-        &[ctx.accounts.lolly_burn_state.bump],
+        authority_pubkey.as_ref(),
+        &[lolly_burn_state.bump],
     ];
 
     let signer_seeds = &[&seeds[..]];
 
-    let cpi_accounts = Burn {
-        mint: ctx.accounts.lolly_mint.to_account_info(),
-        from: ctx.accounts.lolly_burn_state_lolly_vault.to_account_info(),
-        authority: ctx.accounts.lolly_burn_state.to_account_info(),
-    };
-    let cpi_program = ctx.accounts.token_program.to_account_info();
     // Create the CpiContext we need for the request
-    let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
+    token::burn(CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(), 
+            Burn {
+                mint: lolly_mint.to_account_info(),
+                from: lolly_burn_state_lolly_vault.to_account_info(),
+                authority: lolly_burn_state.to_account_info(),
+            }, 
+            signer_seeds,
+        ),
+        lolly_vault_balance,
+    )?;
 
-    // Execute anchor's helper function to burn tokens
-    token::burn(cpi_ctx, lolly_vault_balance)?;
+    lolly_burn_state.total_lolly_burnt += lolly_vault_balance;
 
-    ctx.accounts.lolly_burn_state.total_lolly_burnt += lolly_vault_balance;
     msg!(
         "Total Burnt $LOLLY: {}",
-        ctx.accounts.lolly_burn_state.total_lolly_burnt
+        lolly_burn_state.total_lolly_burnt
     );
 
     let block_time = Clock::get()?.unix_timestamp;

@@ -253,6 +253,48 @@ impl LottoGame {
         }
     }
 
+    pub fn final_buy_and_burn_amount(&self) -> Result<u64> {
+        if self.check_game_state_closed() {
+            Ok((LottoGame::BUY_AND_BURN_BPS as u64)
+                .checked_mul(self.ticket_price)
+                .unwrap()
+                .checked_div(10000)
+                .unwrap()
+                .checked_mul(self.tickets_sold)
+                .unwrap())
+        } else {
+            return Err(LollysLottoError::LottoGameIsStillOpen.into());
+        }
+    }
+
+    pub fn final_dao_amount(&self) -> Result<u64> {
+        if self.check_game_state_closed() {
+            Ok((LottoGame::DAO_BPS as u64)
+                .checked_mul(self.ticket_price)
+                .unwrap()
+                .checked_div(10000)
+                .unwrap()
+                .checked_mul(self.tickets_sold)
+                .unwrap())
+        } else {
+            return Err(LollysLottoError::LottoGameIsStillOpen.into());
+        }
+    }
+
+    pub fn final_protocol_fees_amount(&self) -> Result<u64> {
+        if self.check_game_state_closed() {
+            Ok((LottoGame::PROTOCOL_FEES_BPS as u64)
+                .checked_mul(self.ticket_price)
+                .unwrap()
+                .checked_div(10000)
+                .unwrap()
+                .checked_mul(self.tickets_sold)
+                .unwrap())
+        } else {
+            return Err(LollysLottoError::LottoGameIsStillOpen.into());
+        }
+    }
+
     pub fn update_winning_numbers(
         &mut self,
         numbers: [u8; 6],

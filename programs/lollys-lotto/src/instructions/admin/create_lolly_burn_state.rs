@@ -12,16 +12,14 @@ use crate::{
 
 #[derive(Accounts)]
 pub struct CreateLollyBurnState<'info> {
-    /// CHECK: Payer for paying the rent of LollyBurnState state
-    #[account(mut)]
-    pub payer: Signer<'info>,
     /// CHECK: Authority of the LollyBurnState instance
+    #[account(mut)]
     pub authority: Signer<'info>,
     /// LollyBurnState instance to be created
     // lolly_burn_state account is a PDA signer all the swap, burn CPIs. It is the PDA which will receive USDC fees to its USDC ATA
     #[account(
         init,
-        payer = payer,
+        payer = authority,
         seeds=[
             LollyBurnState::IDENT,
             authority.key().as_ref()
@@ -36,7 +34,7 @@ pub struct CreateLollyBurnState<'info> {
     /// LOLLY token account to store LOLLY swapped from USDC of lolly_burn_state_usdc_vault using jupiter owned by LollyBurnState PDA
     #[account(
         init,
-        payer = payer,
+        payer = authority,
         associated_token::mint = lolly_mint,
         associated_token::authority = lolly_burn_state,
     )]
@@ -47,7 +45,7 @@ pub struct CreateLollyBurnState<'info> {
     /// USDC token account to store USDC sent from LottoGame USDC vault owned by LollyBurnState PDA
     #[account(
         init,
-        payer = payer,
+        payer = authority,
         associated_token::mint = usdc_mint,
         associated_token::authority = lolly_burn_state,
     )]
