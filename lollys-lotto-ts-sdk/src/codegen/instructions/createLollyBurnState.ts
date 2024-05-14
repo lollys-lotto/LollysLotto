@@ -5,7 +5,6 @@ import * as types from "../types" // eslint-disable-line @typescript-eslint/no-u
 import { PROGRAM_ID } from "../programId"
 
 export interface CreateLollyBurnStateAccounts {
-  payer: PublicKey
   authority: PublicKey
   /** LollyBurnState instance to be created */
   lollyBurnState: PublicKey
@@ -28,8 +27,7 @@ export function createLollyBurnState(
   programId: PublicKey = PROGRAM_ID
 ) {
   const keys: Array<AccountMeta> = [
-    { pubkey: accounts.payer, isSigner: true, isWritable: true },
-    { pubkey: accounts.authority, isSigner: true, isWritable: false },
+    { pubkey: accounts.authority, isSigner: true, isWritable: true },
     { pubkey: accounts.lollyBurnState, isSigner: false, isWritable: true },
     { pubkey: accounts.lollyMint, isSigner: false, isWritable: false },
     {

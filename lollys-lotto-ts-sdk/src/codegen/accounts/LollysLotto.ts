@@ -74,11 +74,11 @@ export class LollysLotto {
   }
 
   static decode(data: Buffer): LollysLotto {
-    if (!data.subarray(0, 8).equals(LollysLotto.discriminator)) {
+    if (!data.slice(0, 8).equals(LollysLotto.discriminator)) {
       throw new Error("invalid account discriminator")
     }
 
-    const dec = LollysLotto.layout.decode(data.subarray(8))
+    const dec = LollysLotto.layout.decode(data.slice(8))
 
     return new LollysLotto({
       bump: dec.bump,

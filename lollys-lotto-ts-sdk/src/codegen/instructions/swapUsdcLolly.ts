@@ -25,9 +25,9 @@ export interface SwapUsdcLollyAccounts {
    * LOLLY token account to store LOLLY swapped from USDC of lolly_burn_state_usdc_vault using jupiter owned by LollyBurnState PDA
    */
   lollyBurnStateLollyVault: PublicKey
+  eventEmitter: PublicKey
   jupiterProgram: PublicKey
   tokenProgram: PublicKey
-  associatedTokenProgram: PublicKey
   systemProgram: PublicKey
 }
 
@@ -51,13 +51,9 @@ export function swapUsdcLolly(
       isSigner: false,
       isWritable: true,
     },
+    { pubkey: accounts.eventEmitter, isSigner: false, isWritable: true },
     { pubkey: accounts.jupiterProgram, isSigner: false, isWritable: false },
     { pubkey: accounts.tokenProgram, isSigner: false, isWritable: false },
-    {
-      pubkey: accounts.associatedTokenProgram,
-      isSigner: false,
-      isWritable: false,
-    },
     { pubkey: accounts.systemProgram, isSigner: false, isWritable: false },
   ]
   const identifier = Buffer.from([186, 169, 100, 138, 156, 139, 160, 75])
@@ -72,7 +68,7 @@ export function swapUsdcLolly(
     },
     buffer
   )
-  const data = Buffer.concat([identifier, buffer]).subarray(0, 8 + len)
+  const data = Buffer.concat([identifier, buffer]).slice(0, 8 + len)
   const ix = new TransactionInstruction({ keys, programId, data })
   return ix
 }

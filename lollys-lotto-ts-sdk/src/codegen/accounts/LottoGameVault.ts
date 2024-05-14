@@ -58,11 +58,11 @@ export class LottoGameVault {
   }
 
   static decode(data: Buffer): LottoGameVault {
-    if (!data.subarray(0, 8).equals(LottoGameVault.discriminator)) {
+    if (!data.slice(0, 8).equals(LottoGameVault.discriminator)) {
       throw new Error("invalid account discriminator")
     }
 
-    const dec = LottoGameVault.layout.decode(data.subarray(8))
+    const dec = LottoGameVault.layout.decode(data.slice(8))
 
     return new LottoGameVault({})
   }

@@ -4,28 +4,41 @@ import * as types from "../types" // eslint-disable-line @typescript-eslint/no-u
 import * as borsh from "@coral-xyz/borsh"
 
 export interface BurnLollyEventFields {
-  user: PublicKey
-  lolly: PublicKey
+  authority: PublicKey
+  lollyBurnState: PublicKey
+  lollyBurntAmountNow: BN
+  totalLollyBurnt: BN
 }
 
 export interface BurnLollyEventJSON {
-  user: string
-  lolly: string
+  authority: string
+  lollyBurnState: string
+  lollyBurntAmountNow: string
+  totalLollyBurnt: string
 }
 
-/** Event emitted when a user burns a lolly. */
+/** Event emitted when a user burns $LOLLY tokens. */
 export class BurnLollyEvent {
-  readonly user: PublicKey
-  readonly lolly: PublicKey
+  readonly authority: PublicKey
+  readonly lollyBurnState: PublicKey
+  readonly lollyBurntAmountNow: BN
+  readonly totalLollyBurnt: BN
 
   constructor(fields: BurnLollyEventFields) {
-    this.user = fields.user
-    this.lolly = fields.lolly
+    this.authority = fields.authority
+    this.lollyBurnState = fields.lollyBurnState
+    this.lollyBurntAmountNow = fields.lollyBurntAmountNow
+    this.totalLollyBurnt = fields.totalLollyBurnt
   }
 
   static layout(property?: string) {
     return borsh.struct(
-      [borsh.publicKey("user"), borsh.publicKey("lolly")],
+      [
+        borsh.publicKey("authority"),
+        borsh.publicKey("lollyBurnState"),
+        borsh.u64("lollyBurntAmountNow"),
+        borsh.u64("totalLollyBurnt"),
+      ],
       property
     )
   }
@@ -33,29 +46,37 @@ export class BurnLollyEvent {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static fromDecoded(obj: any) {
     return new BurnLollyEvent({
-      user: obj.user,
-      lolly: obj.lolly,
+      authority: obj.authority,
+      lollyBurnState: obj.lollyBurnState,
+      lollyBurntAmountNow: obj.lollyBurntAmountNow,
+      totalLollyBurnt: obj.totalLollyBurnt,
     })
   }
 
   static toEncodable(fields: BurnLollyEventFields) {
     return {
-      user: fields.user,
-      lolly: fields.lolly,
+      authority: fields.authority,
+      lollyBurnState: fields.lollyBurnState,
+      lollyBurntAmountNow: fields.lollyBurntAmountNow,
+      totalLollyBurnt: fields.totalLollyBurnt,
     }
   }
 
   toJSON(): BurnLollyEventJSON {
     return {
-      user: this.user.toString(),
-      lolly: this.lolly.toString(),
+      authority: this.authority.toString(),
+      lollyBurnState: this.lollyBurnState.toString(),
+      lollyBurntAmountNow: this.lollyBurntAmountNow.toString(),
+      totalLollyBurnt: this.totalLollyBurnt.toString(),
     }
   }
 
   static fromJSON(obj: BurnLollyEventJSON): BurnLollyEvent {
     return new BurnLollyEvent({
-      user: new PublicKey(obj.user),
-      lolly: new PublicKey(obj.lolly),
+      authority: new PublicKey(obj.authority),
+      lollyBurnState: new PublicKey(obj.lollyBurnState),
+      lollyBurntAmountNow: new BN(obj.lollyBurntAmountNow),
+      totalLollyBurnt: new BN(obj.totalLollyBurnt),
     })
   }
 

@@ -108,7 +108,7 @@ describe("lollys-lotto", () => {
     // console.log(`Round Name Byte Array: ${roundNameByteArray}`);
     // let roundName = stringToU8Array(roundNameString);
     // if (roundName.length > 32) {
-    //   roundName = roundName.slice(0, 32);
+    //   roundName = roundName.subarray(0, 32);
     // } else while (roundName.length < 32) {
     //   roundName.push(0);
     // }

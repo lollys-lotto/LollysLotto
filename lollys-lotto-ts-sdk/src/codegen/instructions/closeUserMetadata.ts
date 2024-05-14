@@ -4,22 +4,24 @@ import * as borsh from "@coral-xyz/borsh" // eslint-disable-line @typescript-esl
 import * as types from "../types" // eslint-disable-line @typescript-eslint/no-unused-vars
 import { PROGRAM_ID } from "../programId"
 
-export interface CloseLollyLottoAccounts {
-  authority: PublicKey
-  lollysLotto: PublicKey
+export interface CloseUserMetadataAccounts {
+  user: PublicKey
+  userMetadata: PublicKey
+  eventEmitter: PublicKey
   systemProgram: PublicKey
 }
 
-export function closeLollyLotto(
-  accounts: CloseLollyLottoAccounts,
+export function closeUserMetadata(
+  accounts: CloseUserMetadataAccounts,
   programId: PublicKey = PROGRAM_ID
 ) {
   const keys: Array<AccountMeta> = [
-    { pubkey: accounts.authority, isSigner: true, isWritable: true },
-    { pubkey: accounts.lollysLotto, isSigner: false, isWritable: true },
+    { pubkey: accounts.user, isSigner: true, isWritable: true },
+    { pubkey: accounts.userMetadata, isSigner: false, isWritable: true },
+    { pubkey: accounts.eventEmitter, isSigner: false, isWritable: true },
     { pubkey: accounts.systemProgram, isSigner: false, isWritable: false },
   ]
-  const identifier = Buffer.from([22, 35, 127, 44, 232, 130, 126, 47])
+  const identifier = Buffer.from([4, 177, 246, 70, 175, 75, 175, 161])
   const data = identifier
   const ix = new TransactionInstruction({ keys, programId, data })
   return ix

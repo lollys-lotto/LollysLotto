@@ -3,14 +3,37 @@ import BN from "bn.js" // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as types from "../types" // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as borsh from "@coral-xyz/borsh"
 
+export interface NotStartedJSON {
+  kind: "NotStarted"
+}
+
+export class NotStarted {
+  static readonly discriminator = 0
+  static readonly kind = "NotStarted"
+  readonly discriminator = 0
+  readonly kind = "NotStarted"
+
+  toJSON(): NotStartedJSON {
+    return {
+      kind: "NotStarted",
+    }
+  }
+
+  toEncodable() {
+    return {
+      NotStarted: {},
+    }
+  }
+}
+
 export interface OpenJSON {
   kind: "Open"
 }
 
 export class Open {
-  static readonly discriminator = 0
+  static readonly discriminator = 1
   static readonly kind = "Open"
-  readonly discriminator = 0
+  readonly discriminator = 1
   readonly kind = "Open"
 
   toJSON(): OpenJSON {
@@ -31,9 +54,9 @@ export interface ClosedJSON {
 }
 
 export class Closed {
-  static readonly discriminator = 1
+  static readonly discriminator = 2
   static readonly kind = "Closed"
-  readonly discriminator = 1
+  readonly discriminator = 2
   readonly kind = "Closed"
 
   toJSON(): ClosedJSON {
@@ -54,9 +77,9 @@ export interface FinishedJSON {
 }
 
 export class Finished {
-  static readonly discriminator = 2
+  static readonly discriminator = 3
   static readonly kind = "Finished"
-  readonly discriminator = 2
+  readonly discriminator = 3
   readonly kind = "Finished"
 
   toJSON(): FinishedJSON {
@@ -78,6 +101,9 @@ export function fromDecoded(obj: any): types.LottoGameStateKind {
     throw new Error("Invalid enum object")
   }
 
+  if ("NotStarted" in obj) {
+    return new NotStarted()
+  }
   if ("Open" in obj) {
     return new Open()
   }
@@ -95,6 +121,9 @@ export function fromJSON(
   obj: types.LottoGameStateJSON
 ): types.LottoGameStateKind {
   switch (obj.kind) {
+    case "NotStarted": {
+      return new NotStarted()
+    }
     case "Open": {
       return new Open()
     }
@@ -109,6 +138,7 @@ export function fromJSON(
 
 export function layout(property?: string) {
   const ret = borsh.rustEnum([
+    borsh.struct([], "NotStarted"),
     borsh.struct([], "Open"),
     borsh.struct([], "Closed"),
     borsh.struct([], "Finished"),

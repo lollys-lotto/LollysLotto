@@ -4,35 +4,24 @@ import * as borsh from "@coral-xyz/borsh" // eslint-disable-line @typescript-esl
 import * as types from "../types" // eslint-disable-line @typescript-eslint/no-unused-vars
 import { PROGRAM_ID } from "../programId"
 
-export interface BurnLollyAccounts {
-  /** This is the token mint that we want to burn */
-  lollyMint: PublicKey
-  /** The authority of the LollyBurnState instance */
+export interface CloseLollyBurnStateAccounts {
   authority: PublicKey
   lollyBurnState: PublicKey
-  /** LOLLY token account to burn tokens, owned by LollyBurnState PDA */
-  lollyBurnStateLollyVault: PublicKey
   eventEmitter: PublicKey
-  tokenProgram: PublicKey
+  systemProgram: PublicKey
 }
 
-export function burnLolly(
-  accounts: BurnLollyAccounts,
+export function closeLollyBurnState(
+  accounts: CloseLollyBurnStateAccounts,
   programId: PublicKey = PROGRAM_ID
 ) {
   const keys: Array<AccountMeta> = [
-    { pubkey: accounts.lollyMint, isSigner: false, isWritable: true },
-    { pubkey: accounts.authority, isSigner: true, isWritable: false },
+    { pubkey: accounts.authority, isSigner: true, isWritable: true },
     { pubkey: accounts.lollyBurnState, isSigner: false, isWritable: true },
-    {
-      pubkey: accounts.lollyBurnStateLollyVault,
-      isSigner: false,
-      isWritable: true,
-    },
     { pubkey: accounts.eventEmitter, isSigner: false, isWritable: true },
-    { pubkey: accounts.tokenProgram, isSigner: false, isWritable: false },
+    { pubkey: accounts.systemProgram, isSigner: false, isWritable: false },
   ]
-  const identifier = Buffer.from([252, 133, 232, 22, 170, 186, 25, 139])
+  const identifier = Buffer.from([81, 45, 206, 37, 231, 154, 202, 61])
   const data = identifier
   const ix = new TransactionInstruction({ keys, programId, data })
   return ix

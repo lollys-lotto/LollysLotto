@@ -4,32 +4,24 @@ import * as borsh from "@coral-xyz/borsh" // eslint-disable-line @typescript-esl
 import * as types from "../types" // eslint-disable-line @typescript-eslint/no-unused-vars
 import { PROGRAM_ID } from "../programId"
 
-export interface CloseLottoGameAccounts {
+export interface CloseLollysLottoAccounts {
   authority: PublicKey
-  lottoGame: PublicKey
-  lottoGameVaultSigner: PublicKey
-  lottoGameVault: PublicKey
+  lollysLotto: PublicKey
   eventEmitter: PublicKey
   systemProgram: PublicKey
 }
 
-export function closeLottoGame(
-  accounts: CloseLottoGameAccounts,
+export function closeLollysLotto(
+  accounts: CloseLollysLottoAccounts,
   programId: PublicKey = PROGRAM_ID
 ) {
   const keys: Array<AccountMeta> = [
     { pubkey: accounts.authority, isSigner: true, isWritable: true },
-    { pubkey: accounts.lottoGame, isSigner: false, isWritable: true },
-    {
-      pubkey: accounts.lottoGameVaultSigner,
-      isSigner: false,
-      isWritable: false,
-    },
-    { pubkey: accounts.lottoGameVault, isSigner: false, isWritable: false },
+    { pubkey: accounts.lollysLotto, isSigner: false, isWritable: true },
     { pubkey: accounts.eventEmitter, isSigner: false, isWritable: true },
     { pubkey: accounts.systemProgram, isSigner: false, isWritable: false },
   ]
-  const identifier = Buffer.from([73, 152, 130, 19, 160, 60, 59, 224])
+  const identifier = Buffer.from([135, 184, 63, 110, 146, 89, 76, 4])
   const data = identifier
   const ix = new TransactionInstruction({ keys, programId, data })
   return ix

@@ -12,7 +12,9 @@ export interface BuyLottoTicketEventFields {
   ticketsSold: BN
   round: BN
   ticketNumber: BN
-  numbers: Array<number>
+  numbers: types.LottoTicketNumbersFields
+  ticketPrice: BN
+  buyDate: BN
 }
 
 export interface BuyLottoTicketEventJSON {
@@ -24,7 +26,9 @@ export interface BuyLottoTicketEventJSON {
   ticketsSold: string
   round: string
   ticketNumber: string
-  numbers: Array<number>
+  numbers: types.LottoTicketNumbersJSON
+  ticketPrice: string
+  buyDate: string
 }
 
 /** Event emitted when a user buys a lotto ticket. */
@@ -37,7 +41,9 @@ export class BuyLottoTicketEvent {
   readonly ticketsSold: BN
   readonly round: BN
   readonly ticketNumber: BN
-  readonly numbers: Array<number>
+  readonly numbers: types.LottoTicketNumbers
+  readonly ticketPrice: BN
+  readonly buyDate: BN
 
   constructor(fields: BuyLottoTicketEventFields) {
     this.user = fields.user
@@ -48,7 +54,9 @@ export class BuyLottoTicketEvent {
     this.ticketsSold = fields.ticketsSold
     this.round = fields.round
     this.ticketNumber = fields.ticketNumber
-    this.numbers = fields.numbers
+    this.numbers = new types.LottoTicketNumbers({ ...fields.numbers })
+    this.ticketPrice = fields.ticketPrice
+    this.buyDate = fields.buyDate
   }
 
   static layout(property?: string) {
@@ -62,7 +70,9 @@ export class BuyLottoTicketEvent {
         borsh.u64("ticketsSold"),
         borsh.u64("round"),
         borsh.u64("ticketNumber"),
-        borsh.array(borsh.u8(), 6, "numbers"),
+        types.LottoTicketNumbers.layout("numbers"),
+        borsh.u64("ticketPrice"),
+        borsh.i64("buyDate"),
       ],
       property
     )
@@ -79,7 +89,9 @@ export class BuyLottoTicketEvent {
       ticketsSold: obj.ticketsSold,
       round: obj.round,
       ticketNumber: obj.ticketNumber,
-      numbers: obj.numbers,
+      numbers: types.LottoTicketNumbers.fromDecoded(obj.numbers),
+      ticketPrice: obj.ticketPrice,
+      buyDate: obj.buyDate,
     })
   }
 
@@ -93,7 +105,9 @@ export class BuyLottoTicketEvent {
       ticketsSold: fields.ticketsSold,
       round: fields.round,
       ticketNumber: fields.ticketNumber,
-      numbers: fields.numbers,
+      numbers: types.LottoTicketNumbers.toEncodable(fields.numbers),
+      ticketPrice: fields.ticketPrice,
+      buyDate: fields.buyDate,
     }
   }
 
@@ -107,7 +121,9 @@ export class BuyLottoTicketEvent {
       ticketsSold: this.ticketsSold.toString(),
       round: this.round.toString(),
       ticketNumber: this.ticketNumber.toString(),
-      numbers: this.numbers,
+      numbers: this.numbers.toJSON(),
+      ticketPrice: this.ticketPrice.toString(),
+      buyDate: this.buyDate.toString(),
     }
   }
 
@@ -121,7 +137,9 @@ export class BuyLottoTicketEvent {
       ticketsSold: new BN(obj.ticketsSold),
       round: new BN(obj.round),
       ticketNumber: new BN(obj.ticketNumber),
-      numbers: obj.numbers,
+      numbers: types.LottoTicketNumbers.fromJSON(obj.numbers),
+      ticketPrice: new BN(obj.ticketPrice),
+      buyDate: new BN(obj.buyDate),
     })
   }
 

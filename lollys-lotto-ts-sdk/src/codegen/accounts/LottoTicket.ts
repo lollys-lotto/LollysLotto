@@ -14,9 +14,21 @@ export interface LottoTicketFields {
   /** The round number of the LottoGame instance this ticket is associated with. */
   round: BN
   /** The numbers the user has chosen for this ticket. */
-  numbers: Array<number>
+  numbers: types.LottoTicketNumbersFields
+  padding1: Array<number>
+  /** The price of this ticket in USDC. */
+  ticketPrice: BN
+  /** The date this ticket was bought. */
+  buyDate: BN
+  /** The date this ticket was checked for winning numbers. */
+  checkDate: BN
+  /** A flag to indicate if this ticket has been checked for winning numbers. */
+  isChecked: number
+  /** A flag to indicate number of times the numbers have been duplicated. */
+  isDuplicated: number
   /** A flag to indicate if this ticket is the winning ticket of the round. */
   isWinner: number
+  padding2: Array<number>
   /** The amount the user has been paid for this ticket if this is the winning ticket. */
   prize: BN
 }
@@ -31,9 +43,21 @@ export interface LottoTicketJSON {
   /** The round number of the LottoGame instance this ticket is associated with. */
   round: string
   /** The numbers the user has chosen for this ticket. */
-  numbers: Array<number>
+  numbers: types.LottoTicketNumbersJSON
+  padding1: Array<number>
+  /** The price of this ticket in USDC. */
+  ticketPrice: string
+  /** The date this ticket was bought. */
+  buyDate: string
+  /** The date this ticket was checked for winning numbers. */
+  checkDate: string
+  /** A flag to indicate if this ticket has been checked for winning numbers. */
+  isChecked: number
+  /** A flag to indicate number of times the numbers have been duplicated. */
+  isDuplicated: number
   /** A flag to indicate if this ticket is the winning ticket of the round. */
   isWinner: number
+  padding2: Array<number>
   /** The amount the user has been paid for this ticket if this is the winning ticket. */
   prize: string
 }
@@ -48,9 +72,21 @@ export class LottoTicket {
   /** The round number of the LottoGame instance this ticket is associated with. */
   readonly round: BN
   /** The numbers the user has chosen for this ticket. */
-  readonly numbers: Array<number>
+  readonly numbers: types.LottoTicketNumbers
+  readonly padding1: Array<number>
+  /** The price of this ticket in USDC. */
+  readonly ticketPrice: BN
+  /** The date this ticket was bought. */
+  readonly buyDate: BN
+  /** The date this ticket was checked for winning numbers. */
+  readonly checkDate: BN
+  /** A flag to indicate if this ticket has been checked for winning numbers. */
+  readonly isChecked: number
+  /** A flag to indicate number of times the numbers have been duplicated. */
+  readonly isDuplicated: number
   /** A flag to indicate if this ticket is the winning ticket of the round. */
   readonly isWinner: number
+  readonly padding2: Array<number>
   /** The amount the user has been paid for this ticket if this is the winning ticket. */
   readonly prize: BN
 
@@ -63,8 +99,15 @@ export class LottoTicket {
     borsh.u64("ticketNumber"),
     borsh.publicKey("lottoGame"),
     borsh.u64("round"),
-    borsh.array(borsh.u8(), 6, "numbers"),
-    borsh.u16("isWinner"),
+    types.LottoTicketNumbers.layout("numbers"),
+    borsh.array(borsh.u8(), 2, "padding1"),
+    borsh.u64("ticketPrice"),
+    borsh.i64("buyDate"),
+    borsh.i64("checkDate"),
+    borsh.u8("isChecked"),
+    borsh.u32("isDuplicated"),
+    borsh.u8("isWinner"),
+    borsh.array(borsh.u8(), 2, "padding2"),
     borsh.u64("prize"),
   ])
 
@@ -73,8 +116,15 @@ export class LottoTicket {
     this.ticketNumber = fields.ticketNumber
     this.lottoGame = fields.lottoGame
     this.round = fields.round
-    this.numbers = fields.numbers
+    this.numbers = new types.LottoTicketNumbers({ ...fields.numbers })
+    this.padding1 = fields.padding1
+    this.ticketPrice = fields.ticketPrice
+    this.buyDate = fields.buyDate
+    this.checkDate = fields.checkDate
+    this.isChecked = fields.isChecked
+    this.isDuplicated = fields.isDuplicated
     this.isWinner = fields.isWinner
+    this.padding2 = fields.padding2
     this.prize = fields.prize
   }
 
@@ -115,19 +165,26 @@ export class LottoTicket {
   }
 
   static decode(data: Buffer): LottoTicket {
-    if (!data.subarray(0, 8).equals(LottoTicket.discriminator)) {
+    if (!data.slice(0, 8).equals(LottoTicket.discriminator)) {
       throw new Error("invalid account discriminator")
     }
 
-    const dec = LottoTicket.layout.decode(data.subarray(8))
+    const dec = LottoTicket.layout.decode(data.slice(8))
 
     return new LottoTicket({
       user: dec.user,
       ticketNumber: dec.ticketNumber,
       lottoGame: dec.lottoGame,
       round: dec.round,
-      numbers: dec.numbers,
+      numbers: types.LottoTicketNumbers.fromDecoded(dec.numbers),
+      padding1: dec.padding1,
+      ticketPrice: dec.ticketPrice,
+      buyDate: dec.buyDate,
+      checkDate: dec.checkDate,
+      isChecked: dec.isChecked,
+      isDuplicated: dec.isDuplicated,
       isWinner: dec.isWinner,
+      padding2: dec.padding2,
       prize: dec.prize,
     })
   }
@@ -138,8 +195,15 @@ export class LottoTicket {
       ticketNumber: this.ticketNumber.toString(),
       lottoGame: this.lottoGame.toString(),
       round: this.round.toString(),
-      numbers: this.numbers,
+      numbers: this.numbers.toJSON(),
+      padding1: this.padding1,
+      ticketPrice: this.ticketPrice.toString(),
+      buyDate: this.buyDate.toString(),
+      checkDate: this.checkDate.toString(),
+      isChecked: this.isChecked,
+      isDuplicated: this.isDuplicated,
       isWinner: this.isWinner,
+      padding2: this.padding2,
       prize: this.prize.toString(),
     }
   }
@@ -150,8 +214,15 @@ export class LottoTicket {
       ticketNumber: new BN(obj.ticketNumber),
       lottoGame: new PublicKey(obj.lottoGame),
       round: new BN(obj.round),
-      numbers: obj.numbers,
+      numbers: types.LottoTicketNumbers.fromJSON(obj.numbers),
+      padding1: obj.padding1,
+      ticketPrice: new BN(obj.ticketPrice),
+      buyDate: new BN(obj.buyDate),
+      checkDate: new BN(obj.checkDate),
+      isChecked: obj.isChecked,
+      isDuplicated: obj.isDuplicated,
       isWinner: obj.isWinner,
+      padding2: obj.padding2,
       prize: new BN(obj.prize),
     })
   }

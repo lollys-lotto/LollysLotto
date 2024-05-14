@@ -3,22 +3,21 @@ import BN from "bn.js" // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as types from "../types" // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as borsh from "@coral-xyz/borsh"
 
-export interface RequestWinningNumbersEventFields {
+export interface CloseLottoGameEventFields {
   lottoGame: PublicKey
   round: BN
 }
 
-export interface RequestWinningNumbersEventJSON {
+export interface CloseLottoGameEventJSON {
   lottoGame: string
   round: string
 }
 
-/** Event emitted when a user requests randomness. */
-export class RequestWinningNumbersEvent {
+export class CloseLottoGameEvent {
   readonly lottoGame: PublicKey
   readonly round: BN
 
-  constructor(fields: RequestWinningNumbersEventFields) {
+  constructor(fields: CloseLottoGameEventFields) {
     this.lottoGame = fields.lottoGame
     this.round = fields.round
   }
@@ -32,36 +31,34 @@ export class RequestWinningNumbersEvent {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static fromDecoded(obj: any) {
-    return new RequestWinningNumbersEvent({
+    return new CloseLottoGameEvent({
       lottoGame: obj.lottoGame,
       round: obj.round,
     })
   }
 
-  static toEncodable(fields: RequestWinningNumbersEventFields) {
+  static toEncodable(fields: CloseLottoGameEventFields) {
     return {
       lottoGame: fields.lottoGame,
       round: fields.round,
     }
   }
 
-  toJSON(): RequestWinningNumbersEventJSON {
+  toJSON(): CloseLottoGameEventJSON {
     return {
       lottoGame: this.lottoGame.toString(),
       round: this.round.toString(),
     }
   }
 
-  static fromJSON(
-    obj: RequestWinningNumbersEventJSON
-  ): RequestWinningNumbersEvent {
-    return new RequestWinningNumbersEvent({
+  static fromJSON(obj: CloseLottoGameEventJSON): CloseLottoGameEvent {
+    return new CloseLottoGameEvent({
       lottoGame: new PublicKey(obj.lottoGame),
       round: new BN(obj.round),
     })
   }
 
   toEncodable() {
-    return RequestWinningNumbersEvent.toEncodable(this)
+    return CloseLottoGameEvent.toEncodable(this)
   }
 }

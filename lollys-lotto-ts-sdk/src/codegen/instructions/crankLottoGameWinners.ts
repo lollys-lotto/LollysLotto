@@ -4,64 +4,57 @@ import * as borsh from "@coral-xyz/borsh" // eslint-disable-line @typescript-esl
 import * as types from "../types" // eslint-disable-line @typescript-eslint/no-unused-vars
 import { PROGRAM_ID } from "../programId"
 
-export interface BuyLottoTicketArgs {
+export interface CrankLottoGameWinnersArgs {
   round: BN
-  numbers: types.LottoTicketNumbersFields
+  winningNumbers: types.LottoTicketNumbersFields
+  winningNumbersIndex: Array<BN>
 }
 
-export interface BuyLottoTicketAccounts {
+export interface CrankLottoGameWinnersAccounts {
   authority: PublicKey
+  lottoGame: PublicKey
+  lottoGameVaultSigner: PublicKey
+  lottoGameVault: PublicKey
   user: PublicKey
   userMetadata: PublicKey
-  userUsdcTokenAccount: PublicKey
-  lottoGameMint: PublicKey
-  lottoGame: PublicKey
-  lottoGameVault: PublicKey
   lottoTicket: PublicKey
   eventEmitter: PublicKey
   tokenProgram: PublicKey
-  associatedTokenProgram: PublicKey
-  systemProgram: PublicKey
 }
 
 export const layout = borsh.struct([
   borsh.u64("round"),
-  types.LottoTicketNumbers.layout("numbers"),
+  types.LottoTicketNumbers.layout("winningNumbers"),
+  borsh.array(borsh.i64(), 4, "winningNumbersIndex"),
 ])
 
-export function buyLottoTicket(
-  args: BuyLottoTicketArgs,
-  accounts: BuyLottoTicketAccounts,
+export function crankLottoGameWinners(
+  args: CrankLottoGameWinnersArgs,
+  accounts: CrankLottoGameWinnersAccounts,
   programId: PublicKey = PROGRAM_ID
 ) {
   const keys: Array<AccountMeta> = [
-    { pubkey: accounts.authority, isSigner: false, isWritable: false },
-    { pubkey: accounts.user, isSigner: true, isWritable: true },
-    { pubkey: accounts.userMetadata, isSigner: false, isWritable: true },
-    {
-      pubkey: accounts.userUsdcTokenAccount,
-      isSigner: false,
-      isWritable: true,
-    },
-    { pubkey: accounts.lottoGameMint, isSigner: false, isWritable: false },
+    { pubkey: accounts.authority, isSigner: true, isWritable: false },
     { pubkey: accounts.lottoGame, isSigner: false, isWritable: true },
-    { pubkey: accounts.lottoGameVault, isSigner: false, isWritable: true },
-    { pubkey: accounts.lottoTicket, isSigner: false, isWritable: true },
-    { pubkey: accounts.eventEmitter, isSigner: false, isWritable: true },
-    { pubkey: accounts.tokenProgram, isSigner: false, isWritable: false },
     {
-      pubkey: accounts.associatedTokenProgram,
+      pubkey: accounts.lottoGameVaultSigner,
       isSigner: false,
       isWritable: false,
     },
-    { pubkey: accounts.systemProgram, isSigner: false, isWritable: false },
+    { pubkey: accounts.lottoGameVault, isSigner: false, isWritable: true },
+    { pubkey: accounts.user, isSigner: false, isWritable: false },
+    { pubkey: accounts.userMetadata, isSigner: false, isWritable: true },
+    { pubkey: accounts.lottoTicket, isSigner: false, isWritable: true },
+    { pubkey: accounts.eventEmitter, isSigner: false, isWritable: true },
+    { pubkey: accounts.tokenProgram, isSigner: false, isWritable: false },
   ]
-  const identifier = Buffer.from([183, 179, 100, 99, 208, 96, 97, 49])
+  const identifier = Buffer.from([66, 116, 168, 13, 36, 25, 223, 44])
   const buffer = Buffer.alloc(1000)
   const len = layout.encode(
     {
       round: args.round,
-      numbers: types.LottoTicketNumbers.toEncodable(args.numbers),
+      winningNumbers: types.LottoTicketNumbers.toEncodable(args.winningNumbers),
+      winningNumbersIndex: args.winningNumbersIndex,
     },
     buffer
   )

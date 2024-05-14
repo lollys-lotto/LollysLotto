@@ -3,40 +3,36 @@ import BN from "bn.js" // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as types from "../types" // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as borsh from "@coral-xyz/borsh"
 
-export interface ProcessWinningNumbersEventFields {
+export interface DuplicateWinningNumbersEventFields {
   lottoGame: PublicKey
   round: BN
   randomness: Uint8Array
-  winningNumbers: Array<number>
-  winningNumbersUpdatedIndex: Array<BN>
+  duplicateNumbers: Array<number>
+  duplicateNumberDetectedIndex: Array<BN>
 }
 
-export interface ProcessWinningNumbersEventJSON {
+export interface DuplicateWinningNumbersEventJSON {
   lottoGame: string
   round: string
   randomness: Array<number>
-  winningNumbers: Array<number>
-  winningNumbersUpdatedIndex: Array<string>
+  duplicateNumbers: Array<number>
+  duplicateNumberDetectedIndex: Array<string>
 }
 
-/**
- * Event emitted when a user consumes randomness.
- * This is a placeholder event, and will be replaced with a more
- * meaningful event in the future.
- */
-export class ProcessWinningNumbersEvent {
+/** Event emitted when duplicate winning numbers are detected. */
+export class DuplicateWinningNumbersEvent {
   readonly lottoGame: PublicKey
   readonly round: BN
   readonly randomness: Uint8Array
-  readonly winningNumbers: Array<number>
-  readonly winningNumbersUpdatedIndex: Array<BN>
+  readonly duplicateNumbers: Array<number>
+  readonly duplicateNumberDetectedIndex: Array<BN>
 
-  constructor(fields: ProcessWinningNumbersEventFields) {
+  constructor(fields: DuplicateWinningNumbersEventFields) {
     this.lottoGame = fields.lottoGame
     this.round = fields.round
     this.randomness = fields.randomness
-    this.winningNumbers = fields.winningNumbers
-    this.winningNumbersUpdatedIndex = fields.winningNumbersUpdatedIndex
+    this.duplicateNumbers = fields.duplicateNumbers
+    this.duplicateNumberDetectedIndex = fields.duplicateNumberDetectedIndex
   }
 
   static layout(property?: string) {
@@ -45,8 +41,8 @@ export class ProcessWinningNumbersEvent {
         borsh.publicKey("lottoGame"),
         borsh.u64("round"),
         borsh.vecU8("randomness"),
-        borsh.array(borsh.u8(), 6, "winningNumbers"),
-        borsh.array(borsh.i64(), 4, "winningNumbersUpdatedIndex"),
+        borsh.array(borsh.u8(), 6, "duplicateNumbers"),
+        borsh.array(borsh.i64(), 4, "duplicateNumberDetectedIndex"),
       ],
       property
     )
@@ -54,7 +50,7 @@ export class ProcessWinningNumbersEvent {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static fromDecoded(obj: any) {
-    return new ProcessWinningNumbersEvent({
+    return new DuplicateWinningNumbersEvent({
       lottoGame: obj.lottoGame,
       round: obj.round,
       randomness: new Uint8Array(
@@ -62,12 +58,12 @@ export class ProcessWinningNumbersEvent {
         obj.randomness.byteOffset,
         obj.randomness.length
       ),
-      winningNumbers: obj.winningNumbers,
-      winningNumbersUpdatedIndex: obj.winningNumbersUpdatedIndex,
+      duplicateNumbers: obj.duplicateNumbers,
+      duplicateNumberDetectedIndex: obj.duplicateNumberDetectedIndex,
     })
   }
 
-  static toEncodable(fields: ProcessWinningNumbersEventFields) {
+  static toEncodable(fields: DuplicateWinningNumbersEventFields) {
     return {
       lottoGame: fields.lottoGame,
       round: fields.round,
@@ -76,38 +72,38 @@ export class ProcessWinningNumbersEvent {
         fields.randomness.byteOffset,
         fields.randomness.length
       ),
-      winningNumbers: fields.winningNumbers,
-      winningNumbersUpdatedIndex: fields.winningNumbersUpdatedIndex,
+      duplicateNumbers: fields.duplicateNumbers,
+      duplicateNumberDetectedIndex: fields.duplicateNumberDetectedIndex,
     }
   }
 
-  toJSON(): ProcessWinningNumbersEventJSON {
+  toJSON(): DuplicateWinningNumbersEventJSON {
     return {
       lottoGame: this.lottoGame.toString(),
       round: this.round.toString(),
       randomness: Array.from(this.randomness.values()),
-      winningNumbers: this.winningNumbers,
-      winningNumbersUpdatedIndex: this.winningNumbersUpdatedIndex.map((item) =>
-        item.toString()
+      duplicateNumbers: this.duplicateNumbers,
+      duplicateNumberDetectedIndex: this.duplicateNumberDetectedIndex.map(
+        (item) => item.toString()
       ),
     }
   }
 
   static fromJSON(
-    obj: ProcessWinningNumbersEventJSON
-  ): ProcessWinningNumbersEvent {
-    return new ProcessWinningNumbersEvent({
+    obj: DuplicateWinningNumbersEventJSON
+  ): DuplicateWinningNumbersEvent {
+    return new DuplicateWinningNumbersEvent({
       lottoGame: new PublicKey(obj.lottoGame),
       round: new BN(obj.round),
       randomness: Uint8Array.from(obj.randomness),
-      winningNumbers: obj.winningNumbers,
-      winningNumbersUpdatedIndex: obj.winningNumbersUpdatedIndex.map(
+      duplicateNumbers: obj.duplicateNumbers,
+      duplicateNumberDetectedIndex: obj.duplicateNumberDetectedIndex.map(
         (item) => new BN(item)
       ),
     })
   }
 
   toEncodable() {
-    return ProcessWinningNumbersEvent.toEncodable(this)
+    return DuplicateWinningNumbersEvent.toEncodable(this)
   }
 }

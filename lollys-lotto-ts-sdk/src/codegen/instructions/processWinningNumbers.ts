@@ -28,7 +28,7 @@ export function processWinningNumbers(
     { pubkey: accounts.randomnessState, isSigner: true, isWritable: false },
     { pubkey: accounts.request, isSigner: false, isWritable: false },
     { pubkey: accounts.authority, isSigner: false, isWritable: false },
-    { pubkey: accounts.lottoGame, isSigner: false, isWritable: false },
+    { pubkey: accounts.lottoGame, isSigner: false, isWritable: true },
     { pubkey: accounts.eventEmitter, isSigner: false, isWritable: true },
   ]
   const identifier = Buffer.from([124, 211, 139, 177, 171, 186, 119, 217])
@@ -43,7 +43,7 @@ export function processWinningNumbers(
     },
     buffer
   )
-  const data = Buffer.concat([identifier, buffer]).subarray(0, 8 + len)
+  const data = Buffer.concat([identifier, buffer]).slice(0, 8 + len)
   const ix = new TransactionInstruction({ keys, programId, data })
   return ix
 }

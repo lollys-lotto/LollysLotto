@@ -5,6 +5,14 @@ import * as types from "../types" // eslint-disable-line @typescript-eslint/no-u
 import { PROGRAM_ID } from "../programId"
 
 export interface LottoGameFields {
+  /** The bump seed of this round/LottoGame instance. */
+  bump: number
+  /** The bump seed of this round/LottoGame vault. */
+  lottoGameVaultBump: number
+  /** Version of LottoGame state, */
+  version: types.LottoGameVersionKind
+  /** The state of this round/LottoGame instance. */
+  state: types.LottoGameStateKind
   /** The authority of this LottoGame instance. */
   authority: PublicKey
   /** The round number of this LottoGame instance. */
@@ -21,19 +29,46 @@ export interface LottoGameFields {
   lottoGameMint: PublicKey
   /** The vault where the USDC ticket sales are stored. */
   lottoGameVault: PublicKey
-  /** The winning numbers of this round/LottoGame instance. */
-  winningNumbers: Array<number>
+  /** The winning ticket of this round/LottoGame instance. */
+  jackpotWinningTicket: PublicKey
+  /**
+   * The maximum numbers in a ticket for this round/LottoGame instance (e.g. 0-9).
+   * Ticket has only 6 numbers. But the last two bytes are reserved for padding.
+   */
+  maxNumbersInTicket: Array<number>
+  padding1: Array<number>
+  /**
+   * The jackpot winning numbers of this round/LottoGame instance.
+   * 7th byte is indication if the winning numbers are set. 0 = not set, 1 = set.
+   * 8th byte is an indication if jackpot_winning_amount is disbursed or not (0 = not disbursed, 1 = disbursed).
+   */
+  jackpotWinningNumbers: types.LottoGameWinningNumbersFields
+  /**
+   * The tier 1 winning numbers of this round/LottoGame instance.
+   * 7th byte is indication if the winning numbers are set. 0 = not set, 1 = set. 8th byte is padding.
+   */
+  tier1WinningNumbers: Array<types.LottoGameWinningNumbersFields>
+  /**
+   * The tier 2 winning numbers of this round/LottoGame instance.
+   * 7th byte is indication if the winning numbers are set. 0 = not set, 1 = set. 8th byte is padding.
+   */
+  tier2WinningNumbers: Array<types.LottoGameWinningNumbersFields>
+  /**
+   * The tier 3 winning numbers of this round/LottoGame instance.
+   * 7th byte is indication if the winning numbers are set. 0 = not set, 1 = set. 8th byte is padding.
+   */
+  tier3WinningNumbers: Array<types.LottoGameWinningNumbersFields>
+}
+
+export interface LottoGameJSON {
   /** The bump seed of this round/LottoGame instance. */
   bump: number
   /** The bump seed of this round/LottoGame vault. */
   lottoGameVaultBump: number
-  /** The winning ticket of this round/LottoGame instance. */
-  winningTicket: PublicKey
+  /** Version of LottoGame state, */
+  version: types.LottoGameVersionJSON
   /** The state of this round/LottoGame instance. */
-  state: types.LottoGameStateKind
-}
-
-export interface LottoGameJSON {
+  state: types.LottoGameStateJSON
   /** The authority of this LottoGame instance. */
   authority: string
   /** The round number of this LottoGame instance. */
@@ -50,19 +85,46 @@ export interface LottoGameJSON {
   lottoGameMint: string
   /** The vault where the USDC ticket sales are stored. */
   lottoGameVault: string
-  /** The winning numbers of this round/LottoGame instance. */
-  winningNumbers: Array<number>
-  /** The bump seed of this round/LottoGame instance. */
-  bump: number
-  /** The bump seed of this round/LottoGame vault. */
-  lottoGameVaultBump: number
   /** The winning ticket of this round/LottoGame instance. */
-  winningTicket: string
-  /** The state of this round/LottoGame instance. */
-  state: types.LottoGameStateJSON
+  jackpotWinningTicket: string
+  /**
+   * The maximum numbers in a ticket for this round/LottoGame instance (e.g. 0-9).
+   * Ticket has only 6 numbers. But the last two bytes are reserved for padding.
+   */
+  maxNumbersInTicket: Array<number>
+  padding1: Array<number>
+  /**
+   * The jackpot winning numbers of this round/LottoGame instance.
+   * 7th byte is indication if the winning numbers are set. 0 = not set, 1 = set.
+   * 8th byte is an indication if jackpot_winning_amount is disbursed or not (0 = not disbursed, 1 = disbursed).
+   */
+  jackpotWinningNumbers: types.LottoGameWinningNumbersJSON
+  /**
+   * The tier 1 winning numbers of this round/LottoGame instance.
+   * 7th byte is indication if the winning numbers are set. 0 = not set, 1 = set. 8th byte is padding.
+   */
+  tier1WinningNumbers: Array<types.LottoGameWinningNumbersJSON>
+  /**
+   * The tier 2 winning numbers of this round/LottoGame instance.
+   * 7th byte is indication if the winning numbers are set. 0 = not set, 1 = set. 8th byte is padding.
+   */
+  tier2WinningNumbers: Array<types.LottoGameWinningNumbersJSON>
+  /**
+   * The tier 3 winning numbers of this round/LottoGame instance.
+   * 7th byte is indication if the winning numbers are set. 0 = not set, 1 = set. 8th byte is padding.
+   */
+  tier3WinningNumbers: Array<types.LottoGameWinningNumbersJSON>
 }
 
 export class LottoGame {
+  /** The bump seed of this round/LottoGame instance. */
+  readonly bump: number
+  /** The bump seed of this round/LottoGame vault. */
+  readonly lottoGameVaultBump: number
+  /** Version of LottoGame state, */
+  readonly version: types.LottoGameVersionKind
+  /** The state of this round/LottoGame instance. */
+  readonly state: types.LottoGameStateKind
   /** The authority of this LottoGame instance. */
   readonly authority: PublicKey
   /** The round number of this LottoGame instance. */
@@ -79,22 +141,45 @@ export class LottoGame {
   readonly lottoGameMint: PublicKey
   /** The vault where the USDC ticket sales are stored. */
   readonly lottoGameVault: PublicKey
-  /** The winning numbers of this round/LottoGame instance. */
-  readonly winningNumbers: Array<number>
-  /** The bump seed of this round/LottoGame instance. */
-  readonly bump: number
-  /** The bump seed of this round/LottoGame vault. */
-  readonly lottoGameVaultBump: number
   /** The winning ticket of this round/LottoGame instance. */
-  readonly winningTicket: PublicKey
-  /** The state of this round/LottoGame instance. */
-  readonly state: types.LottoGameStateKind
+  readonly jackpotWinningTicket: PublicKey
+  /**
+   * The maximum numbers in a ticket for this round/LottoGame instance (e.g. 0-9).
+   * Ticket has only 6 numbers. But the last two bytes are reserved for padding.
+   */
+  readonly maxNumbersInTicket: Array<number>
+  readonly padding1: Array<number>
+  /**
+   * The jackpot winning numbers of this round/LottoGame instance.
+   * 7th byte is indication if the winning numbers are set. 0 = not set, 1 = set.
+   * 8th byte is an indication if jackpot_winning_amount is disbursed or not (0 = not disbursed, 1 = disbursed).
+   */
+  readonly jackpotWinningNumbers: types.LottoGameWinningNumbers
+  /**
+   * The tier 1 winning numbers of this round/LottoGame instance.
+   * 7th byte is indication if the winning numbers are set. 0 = not set, 1 = set. 8th byte is padding.
+   */
+  readonly tier1WinningNumbers: Array<types.LottoGameWinningNumbers>
+  /**
+   * The tier 2 winning numbers of this round/LottoGame instance.
+   * 7th byte is indication if the winning numbers are set. 0 = not set, 1 = set. 8th byte is padding.
+   */
+  readonly tier2WinningNumbers: Array<types.LottoGameWinningNumbers>
+  /**
+   * The tier 3 winning numbers of this round/LottoGame instance.
+   * 7th byte is indication if the winning numbers are set. 0 = not set, 1 = set. 8th byte is padding.
+   */
+  readonly tier3WinningNumbers: Array<types.LottoGameWinningNumbers>
 
   static readonly discriminator = Buffer.from([
     226, 110, 158, 219, 41, 231, 30, 168,
   ])
 
   static readonly layout = borsh.struct([
+    borsh.u8("bump"),
+    borsh.u8("lottoGameVaultBump"),
+    types.LottoGameVersion.layout("version"),
+    types.LottoGameState.layout("state"),
     borsh.publicKey("authority"),
     borsh.u64("round"),
     borsh.i64("startDate"),
@@ -103,14 +188,32 @@ export class LottoGame {
     borsh.u64("ticketsSold"),
     borsh.publicKey("lottoGameMint"),
     borsh.publicKey("lottoGameVault"),
-    borsh.array(borsh.u8(), 6, "winningNumbers"),
-    borsh.u8("bump"),
-    borsh.u8("lottoGameVaultBump"),
-    borsh.publicKey("winningTicket"),
-    types.LottoGameState.layout("state"),
+    borsh.publicKey("jackpotWinningTicket"),
+    borsh.array(borsh.u8(), 6, "maxNumbersInTicket"),
+    borsh.array(borsh.u8(), 2, "padding1"),
+    types.LottoGameWinningNumbers.layout("jackpotWinningNumbers"),
+    borsh.array(
+      types.LottoGameWinningNumbers.layout(),
+      10,
+      "tier1WinningNumbers"
+    ),
+    borsh.array(
+      types.LottoGameWinningNumbers.layout(),
+      100,
+      "tier2WinningNumbers"
+    ),
+    borsh.array(
+      types.LottoGameWinningNumbers.layout(),
+      1000,
+      "tier3WinningNumbers"
+    ),
   ])
 
   constructor(fields: LottoGameFields) {
+    this.bump = fields.bump
+    this.lottoGameVaultBump = fields.lottoGameVaultBump
+    this.version = fields.version
+    this.state = fields.state
     this.authority = fields.authority
     this.round = fields.round
     this.startDate = fields.startDate
@@ -119,11 +222,21 @@ export class LottoGame {
     this.ticketsSold = fields.ticketsSold
     this.lottoGameMint = fields.lottoGameMint
     this.lottoGameVault = fields.lottoGameVault
-    this.winningNumbers = fields.winningNumbers
-    this.bump = fields.bump
-    this.lottoGameVaultBump = fields.lottoGameVaultBump
-    this.winningTicket = fields.winningTicket
-    this.state = fields.state
+    this.jackpotWinningTicket = fields.jackpotWinningTicket
+    this.maxNumbersInTicket = fields.maxNumbersInTicket
+    this.padding1 = fields.padding1
+    this.jackpotWinningNumbers = new types.LottoGameWinningNumbers({
+      ...fields.jackpotWinningNumbers,
+    })
+    this.tier1WinningNumbers = fields.tier1WinningNumbers.map(
+      (item) => new types.LottoGameWinningNumbers({ ...item })
+    )
+    this.tier2WinningNumbers = fields.tier2WinningNumbers.map(
+      (item) => new types.LottoGameWinningNumbers({ ...item })
+    )
+    this.tier3WinningNumbers = fields.tier3WinningNumbers.map(
+      (item) => new types.LottoGameWinningNumbers({ ...item })
+    )
   }
 
   static async fetch(
@@ -163,13 +276,17 @@ export class LottoGame {
   }
 
   static decode(data: Buffer): LottoGame {
-    if (!data.subarray(0, 8).equals(LottoGame.discriminator)) {
+    if (!data.slice(0, 8).equals(LottoGame.discriminator)) {
       throw new Error("invalid account discriminator")
     }
 
-    const dec = LottoGame.layout.decode(data.subarray(8))
+    const dec = LottoGame.layout.decode(data.slice(8))
 
     return new LottoGame({
+      bump: dec.bump,
+      lottoGameVaultBump: dec.lottoGameVaultBump,
+      version: types.LottoGameVersion.fromDecoded(dec.version),
+      state: types.LottoGameState.fromDecoded(dec.state),
       authority: dec.authority,
       round: dec.round,
       startDate: dec.startDate,
@@ -178,16 +295,36 @@ export class LottoGame {
       ticketsSold: dec.ticketsSold,
       lottoGameMint: dec.lottoGameMint,
       lottoGameVault: dec.lottoGameVault,
-      winningNumbers: dec.winningNumbers,
-      bump: dec.bump,
-      lottoGameVaultBump: dec.lottoGameVaultBump,
-      winningTicket: dec.winningTicket,
-      state: types.LottoGameState.fromDecoded(dec.state),
+      jackpotWinningTicket: dec.jackpotWinningTicket,
+      maxNumbersInTicket: dec.maxNumbersInTicket,
+      padding1: dec.padding1,
+      jackpotWinningNumbers: types.LottoGameWinningNumbers.fromDecoded(
+        dec.jackpotWinningNumbers
+      ),
+      tier1WinningNumbers: dec.tier1WinningNumbers.map(
+        (
+          item: any /* eslint-disable-line @typescript-eslint/no-explicit-any */
+        ) => types.LottoGameWinningNumbers.fromDecoded(item)
+      ),
+      tier2WinningNumbers: dec.tier2WinningNumbers.map(
+        (
+          item: any /* eslint-disable-line @typescript-eslint/no-explicit-any */
+        ) => types.LottoGameWinningNumbers.fromDecoded(item)
+      ),
+      tier3WinningNumbers: dec.tier3WinningNumbers.map(
+        (
+          item: any /* eslint-disable-line @typescript-eslint/no-explicit-any */
+        ) => types.LottoGameWinningNumbers.fromDecoded(item)
+      ),
     })
   }
 
   toJSON(): LottoGameJSON {
     return {
+      bump: this.bump,
+      lottoGameVaultBump: this.lottoGameVaultBump,
+      version: this.version.toJSON(),
+      state: this.state.toJSON(),
       authority: this.authority.toString(),
       round: this.round.toString(),
       startDate: this.startDate.toString(),
@@ -196,16 +333,28 @@ export class LottoGame {
       ticketsSold: this.ticketsSold.toString(),
       lottoGameMint: this.lottoGameMint.toString(),
       lottoGameVault: this.lottoGameVault.toString(),
-      winningNumbers: this.winningNumbers,
-      bump: this.bump,
-      lottoGameVaultBump: this.lottoGameVaultBump,
-      winningTicket: this.winningTicket.toString(),
-      state: this.state.toJSON(),
+      jackpotWinningTicket: this.jackpotWinningTicket.toString(),
+      maxNumbersInTicket: this.maxNumbersInTicket,
+      padding1: this.padding1,
+      jackpotWinningNumbers: this.jackpotWinningNumbers.toJSON(),
+      tier1WinningNumbers: this.tier1WinningNumbers.map((item) =>
+        item.toJSON()
+      ),
+      tier2WinningNumbers: this.tier2WinningNumbers.map((item) =>
+        item.toJSON()
+      ),
+      tier3WinningNumbers: this.tier3WinningNumbers.map((item) =>
+        item.toJSON()
+      ),
     }
   }
 
   static fromJSON(obj: LottoGameJSON): LottoGame {
     return new LottoGame({
+      bump: obj.bump,
+      lottoGameVaultBump: obj.lottoGameVaultBump,
+      version: types.LottoGameVersion.fromJSON(obj.version),
+      state: types.LottoGameState.fromJSON(obj.state),
       authority: new PublicKey(obj.authority),
       round: new BN(obj.round),
       startDate: new BN(obj.startDate),
@@ -214,11 +363,21 @@ export class LottoGame {
       ticketsSold: new BN(obj.ticketsSold),
       lottoGameMint: new PublicKey(obj.lottoGameMint),
       lottoGameVault: new PublicKey(obj.lottoGameVault),
-      winningNumbers: obj.winningNumbers,
-      bump: obj.bump,
-      lottoGameVaultBump: obj.lottoGameVaultBump,
-      winningTicket: new PublicKey(obj.winningTicket),
-      state: types.LottoGameState.fromJSON(obj.state),
+      jackpotWinningTicket: new PublicKey(obj.jackpotWinningTicket),
+      maxNumbersInTicket: obj.maxNumbersInTicket,
+      padding1: obj.padding1,
+      jackpotWinningNumbers: types.LottoGameWinningNumbers.fromJSON(
+        obj.jackpotWinningNumbers
+      ),
+      tier1WinningNumbers: obj.tier1WinningNumbers.map((item) =>
+        types.LottoGameWinningNumbers.fromJSON(item)
+      ),
+      tier2WinningNumbers: obj.tier2WinningNumbers.map((item) =>
+        types.LottoGameWinningNumbers.fromJSON(item)
+      ),
+      tier3WinningNumbers: obj.tier3WinningNumbers.map((item) =>
+        types.LottoGameWinningNumbers.fromJSON(item)
+      ),
     })
   }
 }

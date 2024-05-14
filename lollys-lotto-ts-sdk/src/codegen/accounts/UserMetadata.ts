@@ -15,7 +15,6 @@ export interface UserMetadataFields {
   lastClaimedAt: BN
   referralCount: BN
   referralRevenue: BN
-  claimTickets: Array<types.ClaimTicketFields>
 }
 
 export interface UserMetadataJSON {
@@ -29,7 +28,6 @@ export interface UserMetadataJSON {
   lastClaimedAt: string
   referralCount: string
   referralRevenue: string
-  claimTickets: Array<types.ClaimTicketJSON>
 }
 
 export class UserMetadata {
@@ -43,7 +41,6 @@ export class UserMetadata {
   readonly lastClaimedAt: BN
   readonly referralCount: BN
   readonly referralRevenue: BN
-  readonly claimTickets: Array<types.ClaimTicket>
 
   static readonly discriminator = Buffer.from([
     157, 214, 220, 235, 98, 135, 171, 28,
@@ -60,7 +57,6 @@ export class UserMetadata {
     borsh.i64("lastClaimedAt"),
     borsh.u64("referralCount"),
     borsh.u64("referralRevenue"),
-    borsh.array(types.ClaimTicket.layout(), 64, "claimTickets"),
   ])
 
   constructor(fields: UserMetadataFields) {
@@ -74,9 +70,6 @@ export class UserMetadata {
     this.lastClaimedAt = fields.lastClaimedAt
     this.referralCount = fields.referralCount
     this.referralRevenue = fields.referralRevenue
-    this.claimTickets = fields.claimTickets.map(
-      (item) => new types.ClaimTicket({ ...item })
-    )
   }
 
   static async fetch(
@@ -116,11 +109,11 @@ export class UserMetadata {
   }
 
   static decode(data: Buffer): UserMetadata {
-    if (!data.subarray(0, 8).equals(UserMetadata.discriminator)) {
+    if (!data.slice(0, 8).equals(UserMetadata.discriminator)) {
       throw new Error("invalid account discriminator")
     }
 
-    const dec = UserMetadata.layout.decode(data.subarray(8))
+    const dec = UserMetadata.layout.decode(data.slice(8))
 
     return new UserMetadata({
       bump: dec.bump,
@@ -133,11 +126,6 @@ export class UserMetadata {
       lastClaimedAt: dec.lastClaimedAt,
       referralCount: dec.referralCount,
       referralRevenue: dec.referralRevenue,
-      claimTickets: dec.claimTickets.map(
-        (
-          item: any /* eslint-disable-line @typescript-eslint/no-explicit-any */
-        ) => types.ClaimTicket.fromDecoded(item)
-      ),
     })
   }
 
@@ -153,7 +141,6 @@ export class UserMetadata {
       lastClaimedAt: this.lastClaimedAt.toString(),
       referralCount: this.referralCount.toString(),
       referralRevenue: this.referralRevenue.toString(),
-      claimTickets: this.claimTickets.map((item) => item.toJSON()),
     }
   }
 
@@ -169,9 +156,6 @@ export class UserMetadata {
       lastClaimedAt: new BN(obj.lastClaimedAt),
       referralCount: new BN(obj.referralCount),
       referralRevenue: new BN(obj.referralRevenue),
-      claimTickets: obj.claimTickets.map((item) =>
-        types.ClaimTicket.fromJSON(item)
-      ),
     })
   }
 }

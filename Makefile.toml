@@ -33,6 +33,10 @@ command = "../../anchor/target/release/anchor"
 args = [".keys/lollys_lotto-keypair.json", "target/deploy/lollys_lotto-keypair.json"]
 command = "cp"
 
+[tasks.copy_idl_to_ts_sdk]
+args = ["target/idl/lollys_lotto.json", "lollys-lotto-ts-sdk/src/idl/"]
+command = "cp"
+
 # Run all tests,
 # requires user input (ENTER to advance)
 # TODO Make possible to skip req ENTER to advance
@@ -40,6 +44,7 @@ command = "cp"
 dependencies = [
     "build_dev",
     "copy_program_key",
+    "copy_idl_to_ts_sdk",
     "test_positive_cases",
 ]
 

@@ -3,32 +3,35 @@ import BN from "bn.js" // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as types from "../types" // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as borsh from "@coral-xyz/borsh"
 
-export interface CreateUserMetadataEventFields {
+export interface ClaimUserRewardsEventFields {
   user: PublicKey
   userMetadata: PublicKey
   userRewardsVault: PublicKey
-  createdTimestamp: BN
+  amountToBeClaimed: BN
+  totalAmountClaimed: BN
 }
 
-export interface CreateUserMetadataEventJSON {
+export interface ClaimUserRewardsEventJSON {
   user: string
   userMetadata: string
   userRewardsVault: string
-  createdTimestamp: string
+  amountToBeClaimed: string
+  totalAmountClaimed: string
 }
 
-/** Event emitted when a user creates user metadata. */
-export class CreateUserMetadataEvent {
+export class ClaimUserRewardsEvent {
   readonly user: PublicKey
   readonly userMetadata: PublicKey
   readonly userRewardsVault: PublicKey
-  readonly createdTimestamp: BN
+  readonly amountToBeClaimed: BN
+  readonly totalAmountClaimed: BN
 
-  constructor(fields: CreateUserMetadataEventFields) {
+  constructor(fields: ClaimUserRewardsEventFields) {
     this.user = fields.user
     this.userMetadata = fields.userMetadata
     this.userRewardsVault = fields.userRewardsVault
-    this.createdTimestamp = fields.createdTimestamp
+    this.amountToBeClaimed = fields.amountToBeClaimed
+    this.totalAmountClaimed = fields.totalAmountClaimed
   }
 
   static layout(property?: string) {
@@ -37,7 +40,8 @@ export class CreateUserMetadataEvent {
         borsh.publicKey("user"),
         borsh.publicKey("userMetadata"),
         borsh.publicKey("userRewardsVault"),
-        borsh.i64("createdTimestamp"),
+        borsh.u64("amountToBeClaimed"),
+        borsh.u64("totalAmountClaimed"),
       ],
       property
     )
@@ -45,42 +49,46 @@ export class CreateUserMetadataEvent {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static fromDecoded(obj: any) {
-    return new CreateUserMetadataEvent({
+    return new ClaimUserRewardsEvent({
       user: obj.user,
       userMetadata: obj.userMetadata,
       userRewardsVault: obj.userRewardsVault,
-      createdTimestamp: obj.createdTimestamp,
+      amountToBeClaimed: obj.amountToBeClaimed,
+      totalAmountClaimed: obj.totalAmountClaimed,
     })
   }
 
-  static toEncodable(fields: CreateUserMetadataEventFields) {
+  static toEncodable(fields: ClaimUserRewardsEventFields) {
     return {
       user: fields.user,
       userMetadata: fields.userMetadata,
       userRewardsVault: fields.userRewardsVault,
-      createdTimestamp: fields.createdTimestamp,
+      amountToBeClaimed: fields.amountToBeClaimed,
+      totalAmountClaimed: fields.totalAmountClaimed,
     }
   }
 
-  toJSON(): CreateUserMetadataEventJSON {
+  toJSON(): ClaimUserRewardsEventJSON {
     return {
       user: this.user.toString(),
       userMetadata: this.userMetadata.toString(),
       userRewardsVault: this.userRewardsVault.toString(),
-      createdTimestamp: this.createdTimestamp.toString(),
+      amountToBeClaimed: this.amountToBeClaimed.toString(),
+      totalAmountClaimed: this.totalAmountClaimed.toString(),
     }
   }
 
-  static fromJSON(obj: CreateUserMetadataEventJSON): CreateUserMetadataEvent {
-    return new CreateUserMetadataEvent({
+  static fromJSON(obj: ClaimUserRewardsEventJSON): ClaimUserRewardsEvent {
+    return new ClaimUserRewardsEvent({
       user: new PublicKey(obj.user),
       userMetadata: new PublicKey(obj.userMetadata),
       userRewardsVault: new PublicKey(obj.userRewardsVault),
-      createdTimestamp: new BN(obj.createdTimestamp),
+      amountToBeClaimed: new BN(obj.amountToBeClaimed),
+      totalAmountClaimed: new BN(obj.totalAmountClaimed),
     })
   }
 
   toEncodable() {
-    return CreateUserMetadataEvent.toEncodable(this)
+    return ClaimUserRewardsEvent.toEncodable(this)
   }
 }
