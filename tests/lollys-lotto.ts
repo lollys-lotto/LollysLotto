@@ -4,16 +4,17 @@ import * as anchor from "@coral-xyz/anchor";
 import { ASSOCIATED_TOKEN_PROGRAM_ID, getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { RandomnessService } from "@switchboard-xyz/solana-randomness-service";
 import assert from "assert";
-import { PublicKey, Connection, TransactionMessage, VersionedTransaction } from "@solana/web3.js";
-import { loadKeypair } from "@switchboard-xyz/solana.js";
+import { PublicKey, Connection, clusterApiUrl, TransactionMessage, Keypair, SendOptions, VersionedTransaction, TransactionInstruction, Signer } from "@solana/web3.js";
+import * as fs from 'fs';
 import BN from "bn.js";
+import { createEventEmitter, CreateEventEmitterAccounts } from "../lollys-lotto-ts-sdk/src/codegen/instructions";
 describe("lollys-lotto", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
   const program = anchor.workspace.LollysLotto as anchor.Program<LollysLotto>;
 
-  function stringToByteArray(str) {
+  function stringToByteArray(str: string) {
     // Create a TextEncoder instance
     const encoder = new TextEncoder();
 
@@ -24,7 +25,7 @@ describe("lollys-lotto", () => {
     return byteArray;
   }
 
-  function stringToU8Array(str) {
+  function stringToU8Array(str: string) {
     // Create a TextEncoder instance
     const encoder = new TextEncoder();
 
@@ -37,7 +38,36 @@ describe("lollys-lotto", () => {
     // Return the array of numbers
     return numArray;
 }
+function loadWalletKey(keypairFile:string): Keypair {
+  if (!keypairFile || keypairFile == '') {
+    throw new Error('Keypair is required!');
+  }
+  const loaded = Keypair.fromSecretKey(
+    new Uint8Array(JSON.parse(fs.readFileSync(keypairFile).toString())),
+  );
+  return loaded;
+}
 
+async function sendVersionedTx(
+  connection: Connection, 
+  instructions: TransactionInstruction[], 
+  payer: PublicKey,
+  signers: Signer[]){
+  let latestBlockhash = await connection.getLatestBlockhash()
+  const messageLegacy = new TransactionMessage({
+      payerKey: payer,
+      recentBlockhash: latestBlockhash.blockhash,
+      instructions,
+  }).compileToLegacyMessage();
+  const transation = new VersionedTransaction(messageLegacy)
+  transation.sign(signers);
+  const options: SendOptions = {
+    maxRetries: 3,
+    skipPreflight: false,
+  };
+  const signature = await connection.sendTransaction(transation, options);
+  return signature;
+}
   let randomnessService: RandomnessService;
 
   before(async () => {
@@ -46,11 +76,10 @@ describe("lollys-lotto", () => {
 
 
   it("requests randomness", async () => {
-    // Add your test here.
     const requestKeypair = anchor.web3.Keypair.generate();
     console.log(`Request: ${requestKeypair.publicKey.toBase58()}`);
 
-    const authority = loadKeypair("/Users/0xabstracted/Lolly/LollyLottoTS/.keys/1o1ohFR7M25XktNXAsbnDbvserNoFkrFLdA9916EGWw.json");
+    const authority = loadWalletKey("/Users/0xabstracted/Lolly/lollys-lotto/.keys/lollys_lotto_authority.json");
     console.log(`Authority: ${authority.publicKey.toBase58()}`);
     
     // Start watching for the settled event before triggering the request
@@ -58,14 +87,38 @@ describe("lollys-lotto", () => {
       requestKeypair.publicKey
     );
 
+    // 1. Create Event Emitter
     const eventEmitterSeeds = [Buffer.from('event-emitter')];
     const [eventEmitterPda, eventEmitterBump] = await PublicKey.findProgramAddressSync(eventEmitterSeeds, program.programId);
+    console.log("program.programId:", program.programId.toBase58());
+    
     console.log(`Event Emitter PDA: ${eventEmitterPda.toBase58()}`);
 
-    try {
-      const eventEmitterAccount = await program.account.eventEmitter.fetch(eventEmitterPda);
-      console.log(`Event Emitter Account: ${JSON.stringify(eventEmitterAccount)}`);
-    } catch {
+    // try {
+    //   const eventEmitterAccount = await program.account.eventEmitter.fetch(eventEmitterPda);
+    //   console.log(`Event Emitter Account: ${JSON.stringify(eventEmitterAccount)}`);
+    // } catch {
+      // console.log("Event Emitter Account not found");
+      
+      // const createEventEmitterAccounts : CreateEventEmitterAccounts  = {
+      //   funder: authority.publicKey,
+      //   eventEmitter: eventEmitterPda,
+      //   systemProgram: anchor.web3.SystemProgram.programId,
+      // }
+      // const createEventEmitterIx = createEventEmitter(createEventEmitterAccounts, program.programId);
+      
+      // const connection = new Connection(clusterApiUrl("mainnet-beta"));
+      
+      // const sig = await sendVersionedTx(connection, [createEventEmitterIx], authority.publicKey, [authority]);
+      // console.log(`[TX] createEventEmitter: ${sig}`);
+      
+      
+      try {
+        const eventEmitterAccount = await program.account.eventEmitter.fetch(eventEmitterPda);
+        console.log(`Event Emitter Account: ${JSON.stringify(eventEmitterAccount)}`);
+      } catch {
+        console.log("Event Emitter Account not found");
+      // }
       const createEventEmitterSig = await program.methods
         .createEventEmitter()
         .accounts({
@@ -77,7 +130,7 @@ describe("lollys-lotto", () => {
       console.log(`[TX] createEventEmitter: ${createEventEmitterSig}`);
     }
     
-    
+    // 2. Create Lollys Lotto
     const lollysLottoSeeds = [Buffer.from('lollys-lotto'), authority.publicKey.toBuffer()];
     const [lollysLottoPda, lollysLottoBump] = await PublicKey.findProgramAddressSync(lollysLottoSeeds, program.programId);
     console.log(`Lolly Lotto PDA: ${lollysLottoPda.toBase58()}`);
@@ -99,7 +152,7 @@ describe("lollys-lotto", () => {
       console.log(`[TX] createLollysLotto: ${createLollysLottoSig}`);
     }
 
-    const USDC_MINT_DEVNET = new PublicKey("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU");
+    const USDC_MINT_DEVNET = new PublicKey("Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr");
     const programId = program.programId;
     console.log(`Program ID: ${programId.toBase58()}`);
     
@@ -131,15 +184,7 @@ describe("lollys-lotto", () => {
     // const [lottoGamePda, lottoGameBump] = await PublicKey.findProgramAddressSync(lottoGameSeeds, programId);
     // console.log(`Lotto Game PDA: ${lottoGamePda.toBase58()}`);
 
-    const lottoGameVaultSignerSeeds = [Buffer.from('lotto-game-vault')];
-
-    const [lottoGameVaultSigner, lottoGameVaultSignerBump] = await PublicKey.findProgramAddressSync(lottoGameVaultSignerSeeds, programId);
-    console.log(`Lotto Game Vault Signer: ${lottoGameVaultSigner.toBase58()}`);
-
-    const lottoGameVault = await getAssociatedTokenAddress(USDC_MINT_DEVNET, lottoGameVaultSigner, true);
-    console.log(`Lotto Game Vault: ${lottoGameVault.toBase58()}`);
-
-
+    // 3. Create Lotto Game
     const round = new anchor.BN(0);
     const ticketPrice: anchor.BN = new anchor.BN(1000000);
     const gameDuration: anchor.BN = new anchor.BN(86400);
@@ -151,19 +196,27 @@ describe("lollys-lotto", () => {
     let lottoGameSeeds = null
     if (lollysLottoAccount !== null) {
       // Seeds for generating the PDA. These can be any byte array. Often a combination of account keys and program-specific seed strings are used.
-      lottoGameSeeds = [Buffer.from('lotto-game'), authority.publicKey.toBuffer(), roundName];
+      lottoGameSeeds = [Buffer.from('lotto-game'), authority.publicKey.toBuffer(), round.toArrayLike(Buffer, "le", 8)];
     }
+
     // Find the PDA
     const [lottoGamePda, lottoGameBump] = await PublicKey.findProgramAddressSync(lottoGameSeeds, programId);
     console.log(`Lotto Game PDA: ${lottoGamePda.toBase58()}`);
 
+    // const lottoGameVaultSignerSeeds = [Buffer.from('lotto-game-vault')];
+    const lottoGameVaultSignerSeeds = [Buffer.from('lotto-game-vault'), lottoGamePda.toBuffer() ];
+    const [lottoGameVaultSigner, lottoGameVaultSignerBump] = await PublicKey.findProgramAddressSync(lottoGameVaultSignerSeeds, programId);
+    console.log(`Lotto Game Vault Signer: ${lottoGameVaultSigner.toBase58()}`);
 
+    const lottoGameVault = await getAssociatedTokenAddress(USDC_MINT_DEVNET, lottoGameVaultSigner, true);
+    console.log(`Lotto Game Vault: ${lottoGameVault.toBase58()}`);
+    
 
     // let lottoGameKeypair = anchor.web3.Keypair.generate();
     // let lottoGamePda = lottoGameKeypair.publicKey;
     try {
       const lottoGameAccount = await program.account.lottoGame.fetch(lottoGamePda);
-      console.log(`Lotto Game Account: ${JSON.stringify(lottoGameAccount)}`);
+      // console.log(`Lotto Game Account: ${JSON.stringify(lottoGameAccount)}`);
     }
     catch {
       const startLottoGameSig = await program.methods
@@ -174,7 +227,7 @@ describe("lollys-lotto", () => {
           lottoGame: lottoGamePda,
           lottoGameVaultSigner: lottoGameVaultSigner,
           lottoGameVault: lottoGameVault,
-          usdcMint: USDC_MINT_DEVNET,
+          lottoGameMint: USDC_MINT_DEVNET,
           eventEmitter: eventEmitterPda,
           tokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -187,7 +240,7 @@ describe("lollys-lotto", () => {
 
     // your program makes a CPI request to the RandomnessService
     const signature = await program.methods
-      .requestRandomness()
+      .requestWinningNumbers()
       .accounts({
         randomnessService: randomnessService.programId,
         randomnessRequest: requestKeypair.publicKey,
@@ -206,49 +259,60 @@ describe("lollys-lotto", () => {
       .rpc();
     console.log(`[TX] requestRandomness: ${signature}`);
 
+    
+    let lottoGameAccount = await program.account.lottoGame.fetch(lottoGamePda);
+    console.log(`Lotto Game Account jackpotWinningNumbers: ${JSON.stringify(lottoGameAccount.jackpotWinningNumbers)}`);
+    console.log(`Lotto Game Account tier1WinningNumbers: ${JSON.stringify(lottoGameAccount.tier1WinningNumbers)}`);
+    // console.log(`Lotto Game Account tier2WinningNumbers: ${JSON.stringify(lottoGameAccount.tier2WinningNumbers)}`);
+    // console.log(`Lotto Game Account tier3WinningNumbers: ${JSON.stringify(lottoGameAccount.tier3WinningNumbers)}`);
+  
     // Await the response from the Switchboard Service
-    const [settledRandomnessEvent, settledSlot] =
-      await settledRandomnessEventPromise;
+    // const [settledRandomnessEvent, settledSlot] =
+    //   await settledRandomnessEventPromise;
 
-    console.log(
-      `[EVENT] SimpleRandomnessV1SettledEvent\n${JSON.stringify(
-        {
-          ...settledRandomnessEvent,
+    // console.log(
+    //   `[EVENT] SimpleRandomnessV1SettledEvent\n${JSON.stringify(
+    //     {
+    //       ...settledRandomnessEvent,
 
-          // why is anchor.BN so annoying with hex strings?
-          requestSlot: settledRandomnessEvent.requestSlot.toNumber(),
-          settledSlot: settledRandomnessEvent.settledSlot.toNumber(),
-          randomness: `[${new Uint8Array(settledRandomnessEvent.randomness)}]`,
-        },
-        undefined,
-        2
-      )}`
-    );
+    //       // why is anchor.BN so annoying with hex strings?
+    //       requestSlot: settledRandomnessEvent.requestSlot.toNumber(),
+    //       settledSlot: settledRandomnessEvent.settledSlot.toNumber(),
+    //       randomness: `[${new Uint8Array(settledRandomnessEvent.randomness)}]`,
+    //     },
+    //     undefined,
+    //     2
+    //   )}`
+    // );
 
-    assert.equal(
-      settledRandomnessEvent.user.toBase58(),
-      provider.wallet.publicKey.toBase58(),
-      "User should be the same as the provider wallet"
-    );
-    assert.equal(
-      settledRandomnessEvent.request.toBase58(),
-      requestKeypair.publicKey.toBase58(),
-      "Request should be the same as the provided request keypair"
-    );
-    assert.equal(
-      settledRandomnessEvent.isSuccess,
-      true,
-      "Request did not complete successfully"
-    );
+    // assert.equal(
+    //   settledRandomnessEvent.user.toBase58(),
+    //   provider.wallet.publicKey.toBase58(),
+    //   "User should be the same as the provider wallet"
+    // );
+    // assert.equal(
+    //   settledRandomnessEvent.request.toBase58(),
+    //   requestKeypair.publicKey.toBase58(),
+    //   "Request should be the same as the provided request keypair"
+    // );
+    // assert.equal(
+    //   settledRandomnessEvent.isSuccess,
+    //   true,
+    //   "Request did not complete successfully"
+    // );
 
-    const latency = settledRandomnessEvent.settledSlot
-      .sub(settledRandomnessEvent.requestSlot)
-      .toNumber();
-    console.log(
-      `\nRandomness: [${new Uint8Array(
-        settledRandomnessEvent.randomness
-      )}]\nRequest completed in ${latency} slots!\n`
-    );
+    // const latency = settledRandomnessEvent.settledSlot
+    //   .sub(settledRandomnessEvent.requestSlot)
+    //   .toNumber();
+    // console.log(
+    //   `\nRandomness: [${new Uint8Array(
+    //     settledRandomnessEvent.randomness
+    //   )}]\nRequest completed in ${latency} slots!\n`
+    // );
+
+    // console.log(
+    //   `Request completed in ${latency} slots!\n`
+    // );
 
   });
 });

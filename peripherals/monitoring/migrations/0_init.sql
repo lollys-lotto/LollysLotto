@@ -1,20 +1,30 @@
 CREATE TYPE instruction_type AS ENUM (
-  'process_winning_numbers',
-  'request_winning_numbers',
-  'test_emit_winning_numbers',
+   --admin
   'burn_lolly',
-  'buy_lotto_ticket',
-  'claim_user_rewards',
   'close_event_emitter',
+  'close_lolly_burn_state',
   'close_lollys_lotto',
   'close_lotto_game',
-  'crank_lotto_game_winner',
   'create_event_emitter',
   'create_lolly_burn_state',
   'create_lollys_lotto',
-  'create_user_metadata',
   'start_lotto_game',
-  'swap_usdc_lolly'
+  'swap_usdc_lolly',
+  --cranks
+  'crank_lotto_game_closed',
+  'crank_lotto_game_winners',
+  'crank_transfer_to_buy_and_burn_vault',
+  'crank_transfer_winning_amount_user_rewards_vault',
+  --switchboard
+  'process_winning_numbers',
+  'request_winning_numbers_v2',
+  'test_emit_winning_numbers',
+  --user
+  'buy_lotto_ticket',
+  'claim_user_rewards',
+  'close_lotto_ticket',
+  'close_user_metadata',
+  'create_user_metadata',
 );
 
 CREATE TABLE IF NOT EXISTS program_events (

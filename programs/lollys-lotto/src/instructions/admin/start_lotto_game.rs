@@ -86,6 +86,7 @@ pub fn start_lotto_game(
     round: u64,
     ticket_price: u64,
     game_duration: u64,
+    randomness_account: Pubkey,
     round_name: String,
 ) -> Result<()> {
     let lotto_game = &mut *ctx.accounts.lotto_game.load_init()?;
@@ -94,7 +95,7 @@ pub fn start_lotto_game(
     if round != lollys_lotto.lotto_game_count {
         return Err(LollysLottoError::RoundNumbersAreSequential.into());
     }
-
+    
     lotto_game.bump = ctx.bumps.lotto_game;
     lotto_game.lotto_game_vault_bump = ctx.bumps.lotto_game_vault_signer;
     lotto_game.version = LottoGameVersion::V1;
@@ -117,6 +118,7 @@ pub fn start_lotto_game(
     lotto_game.max_numbers_in_ticket[4] = LottoTicketNumbers::MAX_NUMBERS_IN_TICKET_V1.number5;
     lotto_game.max_numbers_in_ticket[5] =
         LottoTicketNumbers::MAX_NUMBERS_IN_TICKET_V1.jackpot_number;
+    lotto_game.randomness_account = randomness_account;
     lotto_game.jackpot_winning_numbers = LottoGameWinningNumbers::default();
     lotto_game.tier_1_winning_numbers =
         [LottoGameWinningNumbers::default(); LottoGame::MAX_TIER_1_WINNERS_V1];

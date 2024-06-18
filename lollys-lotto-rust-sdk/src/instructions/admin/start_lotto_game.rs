@@ -4,6 +4,7 @@ pub fn start_lotto_game(
     round: u64,
     ticket_price: u64,
     game_duration: u64,
+    randomness_account: &Pubkey,
     round_name: String,
     authority: &Pubkey,
     lollys_lotto: &Pubkey,
@@ -17,6 +18,7 @@ pub fn start_lotto_game(
         round,
         ticket_price,
         game_duration,
+        randomness_account: *randomness_account,
         round_name,
     }
     .data();

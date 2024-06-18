@@ -8,6 +8,7 @@ export interface StartLottoGameArgs {
   round: BN
   ticketPrice: BN
   gameDuration: BN
+  randomnessAccount: PublicKey
   roundName: string
 }
 
@@ -33,6 +34,7 @@ export const layout = borsh.struct([
   borsh.u64("round"),
   borsh.u64("ticketPrice"),
   borsh.u64("gameDuration"),
+  borsh.publicKey("randomnessAccount"),
   borsh.str("roundName"),
 ])
 
@@ -68,11 +70,12 @@ export function startLottoGame(
       round: args.round,
       ticketPrice: args.ticketPrice,
       gameDuration: args.gameDuration,
+      randomnessAccount: args.randomnessAccount,
       roundName: args.roundName,
     },
     buffer
   )
-  const data = Buffer.concat([identifier, buffer]).slice(0, 8 + len)
+  const data = Buffer.concat([identifier, buffer]).subarray(0, 8 + len)
   const ix = new TransactionInstruction({ keys, programId, data })
   return ix
 }

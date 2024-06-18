@@ -13,6 +13,7 @@ use lollys_lotto::{
     },
 };
 
+use solana_sdk::pubkey;
 use utils::test_state::TestState;
 
 use lollys_lotto_rust_sdk::{
@@ -73,10 +74,13 @@ fn test_create_lollys_lotto() {
     println!("lotto_game_vault_signer1: {:?}", lotto_game_vault_signer1);
     println!("lotto_game_vault_pda1: {:?}", lotto_game_vault_pda1);
 
+    let randomness_account = pubkey!("RnDjPbcH6HzuZyF9yJPjTh6StPYCQNEV9KnFdWRnqJj");
+
     test_state.execute_start_lotto_game_ix(
         round1,
         ticket_price1,
         game_duration1,
+        &randomness_account,
         round_name1,
         &test_state.test_admin,
         &test_state.lollys_lotto,
@@ -152,6 +156,7 @@ fn test_create_lollys_lotto() {
         round2,
         ticket_price2,
         game_duration2,
+        &randomness_account,
         round_name2,
         &test_state.test_admin,
         &test_state.lollys_lotto,
@@ -486,14 +491,14 @@ fn test_create_lollys_lotto() {
     assert_eq!(event_emitter.event_id, 9);
 
     // 12. Emit Jackpot Winning Numbers for Round 1
-    let winning_numbers1: Vec<u8> = vec![
-        numbers1.number1,
-        numbers1.number2,
-        numbers1.number3,
-        numbers1.number4,
-        numbers1.number5,
-        numbers1.jackpot_number,
-    ];
+    let mut winning_numbers1: [u8; 32] = [0; 32];
+    winning_numbers1[0] = numbers1.number1;
+    winning_numbers1[1] = numbers1.number2;
+    winning_numbers1[2] = numbers1.number3;
+    winning_numbers1[3] = numbers1.number4;
+    winning_numbers1[4] = numbers1.number5;
+    winning_numbers1[5] = numbers1.jackpot_number;
+
     test_state.execute_test_emit_winning_numbers_ix(
         winning_numbers1.clone(),
         &test_state.test_admin,
@@ -541,14 +546,14 @@ fn test_create_lollys_lotto() {
     assert_eq!(event_emitter.event_id, 10);
 
     // 13. Emit Tier 1 Winning Numbers for Round 1
-    let winning_numbers2: Vec<u8> = vec![
-        numbers3.number1,
-        numbers3.number2,
-        numbers3.number3,
-        numbers3.number4,
-        numbers3.number5,
-        numbers3.jackpot_number,
-    ];
+    let mut winning_numbers2: [u8; 32] = [0; 32];
+    winning_numbers2[0] = numbers3.number1;
+    winning_numbers2[1] = numbers3.number2;
+    winning_numbers2[2] = numbers3.number3;
+    winning_numbers2[3] = numbers3.number4;
+    winning_numbers2[4] = numbers3.number5;
+    winning_numbers2[5] = numbers3.jackpot_number;
+
     test_state.execute_test_emit_winning_numbers_ix(
         winning_numbers2.clone(),
         &test_state.test_admin,

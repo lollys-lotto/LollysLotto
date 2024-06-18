@@ -6,7 +6,7 @@ import { PROGRAM_ID } from "../programId"
 
 export interface BuyLottoTicketArgs {
   round: BN
-  numbers: types.LottoTicketNumbersFields
+  lottoTicketNumbers: types.LottoTicketNumbersFields
 }
 
 export interface BuyLottoTicketAccounts {
@@ -26,7 +26,7 @@ export interface BuyLottoTicketAccounts {
 
 export const layout = borsh.struct([
   borsh.u64("round"),
-  types.LottoTicketNumbers.layout("numbers"),
+  types.LottoTicketNumbers.layout("lottoTicketNumbers"),
 ])
 
 export function buyLottoTicket(
@@ -61,11 +61,13 @@ export function buyLottoTicket(
   const len = layout.encode(
     {
       round: args.round,
-      numbers: types.LottoTicketNumbers.toEncodable(args.numbers),
+      lottoTicketNumbers: types.LottoTicketNumbers.toEncodable(
+        args.lottoTicketNumbers
+      ),
     },
     buffer
   )
-  const data = Buffer.concat([identifier, buffer]).slice(0, 8 + len)
+  const data = Buffer.concat([identifier, buffer]).subarray(0, 8 + len)
   const ix = new TransactionInstruction({ keys, programId, data })
   return ix
 }

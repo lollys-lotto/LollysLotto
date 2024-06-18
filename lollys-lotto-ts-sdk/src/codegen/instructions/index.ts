@@ -42,12 +42,11 @@ export type {
   CrankTransferToBuyAndBurnVaultAccounts,
 } from "./crankTransferToBuyAndBurnVault"
 export { processWinningNumbers } from "./processWinningNumbers"
-export type {
-  ProcessWinningNumbersArgs,
-  ProcessWinningNumbersAccounts,
-} from "./processWinningNumbers"
+export type { ProcessWinningNumbersAccounts } from "./processWinningNumbers"
 export { requestWinningNumbers } from "./requestWinningNumbers"
 export type { RequestWinningNumbersAccounts } from "./requestWinningNumbers"
+export { requestWinningNumbersV2 } from "./requestWinningNumbersV2"
+export type { RequestWinningNumbersV2Accounts } from "./requestWinningNumbersV2"
 export { testEmitWinningNumbers } from "./testEmitWinningNumbers"
 export type {
   TestEmitWinningNumbersArgs,

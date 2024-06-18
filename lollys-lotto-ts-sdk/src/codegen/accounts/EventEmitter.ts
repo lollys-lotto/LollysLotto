@@ -66,11 +66,11 @@ export class EventEmitter {
   }
 
   static decode(data: Buffer): EventEmitter {
-    if (!data.slice(0, 8).equals(EventEmitter.discriminator)) {
+    if (!data.subarray(0, 8).equals(EventEmitter.discriminator)) {
       throw new Error("invalid account discriminator")
     }
 
-    const dec = EventEmitter.layout.decode(data.slice(8))
+    const dec = EventEmitter.layout.decode(data.subarray(8))
 
     return new EventEmitter({
       eventId: dec.eventId,

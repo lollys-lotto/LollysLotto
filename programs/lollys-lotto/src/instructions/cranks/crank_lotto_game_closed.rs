@@ -32,6 +32,9 @@ pub struct CrankLottoGameClosed<'info> {
 pub fn crank_lotto_game_closed(ctx: Context<CrankLottoGameClosed>, round: u64) -> Result<()> {
     // if clock is more than lotto_game.end_time, then close the game
     let lotto_game = &mut *ctx.accounts.lotto_game.load_mut()?;
+    if lotto_game.state == LottoGameState::Closed {
+        return Err(LollysLottoError::GameAlreadyClosed.into());
+    }
     let current_time = Clock::get()?.unix_timestamp;
     if current_time > lotto_game.end_date {
         lotto_game.state = LottoGameState::Closed;

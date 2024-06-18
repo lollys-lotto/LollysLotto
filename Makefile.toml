@@ -8,26 +8,26 @@
 default_to_workspace = false
 skip_core_tasks = true
 
-[env]
-PROGRAM_ID="EQHT3TFXS3hBMzSpJiKb84sHE7iBXnYBpWvQTU8r91m6"
-# This is relative to the ./localnet folder because it is used in integration tests
-USE_LOCAL_PROGRAM_FILE="../target/deploy/lollys_lotto.so"
-RUST_LOG="info"
 
 
 
 # Build the LollysLotto program for release
 [tasks.build_release]
-args = ["build", "-p", "lollys-lotto", "--verifiable"]
-command = "../../anchor/target/release/anchor"
-# command = "anchor"
+args = ["build", "-p", "lollys_lotto", "--verifiable"]
+command = "anchor"
 
 [tasks.build_dev]
 # args = ["build", "-p", "lollys_lotto", "--", "--features", "debug-msg"]
-args = ["build", "-p", "lollys_lotto"]
-command = "../../anchor/target/release/anchor"
-# command = "anchor"
+# args = ["build", "-p", "lollys_lotto"]
+args = ["build"]
+# command = "../../anchor/target/release/anchor"
+command = "anchor"
 
+# Deploy the LollysLotto program
+[tasks.program_deploy]
+# args = ["deploy", "--program-id", "{{env.PROGRAM_ID}}"]
+args = ["deploy"]
+command = "anchor"
 
 [tasks.copy_program_key]
 args = [".keys/lollys_lotto-keypair.json", "target/deploy/lollys_lotto-keypair.json"]
@@ -37,20 +37,59 @@ command = "cp"
 args = ["target/idl/lollys_lotto.json", "lollys-lotto-ts-sdk/src/idl/"]
 command = "cp"
 
+[tasks.start_code_gen]
+args = ["target/idl/lollys_lotto.json", "lollys-lotto-ts-sdk/src/codegen"]
+command = "anchor-client-gen"
+dependencies = ["remove_code_gen"]
+
+[tasks.remove_code_gen]
+args = ["-rf", "lollys-lotto-ts-sdk/src/codegen"]
+command = "rm"
+
+[tasks.idl_init]
+script = '''
+export PROGRAM_ID="13j1mUzsVqhSEiV3QP2oF2a4AUEQuhmQcjdF8nBrG1o1"
+anchor idl init -f target/idl/lollys_lotto.json $PROGRAM_ID
+'''
+
+[tasks.idl_upgrade]
+script = '''
+export PROGRAM_ID="13j1mUzsVqhSEiV3QP2oF2a4AUEQuhmQcjdF8nBrG1o1"
+anchor idl upgrade -f target/idl/lollys_lotto.json $PROGRAM_ID
+'''
+
 # Run all tests,
 # requires user input (ENTER to advance)
 # TODO Make possible to skip req ENTER to advance
-[tasks.test_all]
+[tasks.test_all_idl_init]
 dependencies = [
     "build_dev",
     "copy_program_key",
+    "program_deploy",
+    "idl_init",
     "copy_idl_to_ts_sdk",
+    "start_code_gen",
     "test_positive_cases",
 ]
 
-
+[tasks.test_all_idl_upgrade]
+dependencies = [
+    "build_dev",
+    "copy_program_key",
+    "program_deploy",
+    "idl_upgrade",
+    "copy_idl_to_ts_sdk",
+    "start_code_gen",
+    "test_positive_cases",
+]
 
 # Locally test successful execution of all program instructions
 [tasks.test_positive_cases]
 args = ["test", "--test", "positive_cases"]
 command = "cargo"
+
+[env]
+PROGRAM_ID="13j1mUzsVqhSEiV3QP2oF2a4AUEQuhmQcjdF8nBrG1o1"
+# This is relative to the ./localnet folder because it is used in integration tests
+USE_LOCAL_PROGRAM_FILE="../target/deploy/lollys_lotto.so"
+RUST_LOG="info"

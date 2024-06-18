@@ -53,7 +53,7 @@ export function crankTransferToBuyAndBurnVault(
     },
     buffer
   )
-  const data = Buffer.concat([identifier, buffer]).slice(0, 8 + len)
+  const data = Buffer.concat([identifier, buffer]).subarray(0, 8 + len)
   const ix = new TransactionInstruction({ keys, programId, data })
   return ix
 }

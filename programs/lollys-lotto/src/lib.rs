@@ -10,7 +10,7 @@ pub mod utils;
 use instructions::*;
 use state::LottoTicketNumbers;
 
-declare_id!("EQHT3TFXS3hBMzSpJiKb84sHE7iBXnYBpWvQTU8r91m6");
+declare_id!("13j1mUzsVqhSEiV3QP2oF2a4AUEQuhmQcjdF8nBrG1o1");
 
 #[program]
 pub mod lollys_lotto {
@@ -54,9 +54,10 @@ pub mod lollys_lotto {
         round: u64,
         ticket_price: u64,
         game_duration: u64,
+        randomness_account: Pubkey,
         round_name: String,
     ) -> Result<()> {
-        start_lotto_game::start_lotto_game(ctx, round, ticket_price, game_duration, round_name)
+        start_lotto_game::start_lotto_game(ctx, round, ticket_price, game_duration, randomness_account, round_name)
     }
 
     pub fn swap_usdc_lolly<'a, 'b, 'c: 'info, 'info>(
@@ -110,18 +111,23 @@ pub mod lollys_lotto {
     // Switchboard instructions
     pub fn process_winning_numbers(
         ctx: Context<ProcessWinningNumbers>,
-        result: Vec<u8>,
+        // result: [u8; 32],
     ) -> Result<()> {
-        process_winning_numbers::process_winning_numbers(ctx, result)
+        process_winning_numbers::process_winning_numbers(ctx)
+        // process_winning_numbers::process_winning_numbers(ctx, result)
     }
 
     pub fn request_winning_numbers(ctx: Context<RequestWinningNumbers>) -> Result<()> {
         request_winning_numbers::request_winning_numbers(ctx)
     }
 
+    pub fn request_winning_numbers_v2(ctx: Context<RequestWinningNumbersV2>) -> Result<()> {
+        request_winning_numbers_v2::request_winning_numbers_v2(ctx)
+    }
+
     pub fn test_emit_winning_numbers(
         ctx: Context<TestEmitWinningNumbers>,
-        result: Vec<u8>,
+        result: [u8; 32],
     ) -> Result<()> {
         test_emit_winning_numbers::test_emit_winning_numbers(ctx, result)
     }
@@ -130,9 +136,9 @@ pub mod lollys_lotto {
     pub fn buy_lotto_ticket(
         ctx: Context<BuyLottoTicket>,
         round: u64,
-        numbers: LottoTicketNumbers,
+        lotto_ticket_numbers: LottoTicketNumbers,
     ) -> Result<()> {
-        ctx.accounts.process(round, numbers)
+        ctx.accounts.process(round, lotto_ticket_numbers)
     }
 
     pub fn claim_user_rewards(

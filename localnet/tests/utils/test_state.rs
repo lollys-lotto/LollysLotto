@@ -171,6 +171,7 @@ impl TestState {
         round: u64,
         ticket_price: u64,
         game_duration: u64,
+        randomness_account: &Pubkey,
         round_name: String,
         authority: &Pubkey,
         lollys_lotto: &Pubkey,
@@ -184,6 +185,7 @@ impl TestState {
             round,
             ticket_price,
             game_duration,
+            randomness_account,
             round_name,
             authority,
             lollys_lotto,
@@ -258,7 +260,7 @@ impl TestState {
 
     pub fn execute_test_emit_winning_numbers_ix(
         &self,
-        result: Vec<u8>,
+        result: [u8; 32],
         authority: &Pubkey,
         lotto_game: &Pubkey,
         event_emitter: &Pubkey,

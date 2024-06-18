@@ -7,7 +7,7 @@ const binaryInstallDir = path.join(__dirname, '.crates');
 module.exports = {
   idlGenerator: 'anchor',
   programName: 'lollys-lotto',
-  programId: 'EQHT3TFXS3hBMzSpJiKb84sHE7iBXnYBpWvQTU8r91m6',
+  programId: '13j1mUzsVqhSEiV3QP2oF2a4AUEQuhmQcjdF8nBrG1o1',
   idlDir,
   sdkDir,
   binaryInstallDir,

@@ -37,6 +37,7 @@ export interface LottoGameFields {
    */
   maxNumbersInTicket: Array<number>
   padding1: Array<number>
+  randomnessAccount: PublicKey
   /**
    * The jackpot winning numbers of this round/LottoGame instance.
    * 7th byte is indication if the winning numbers are set. 0 = not set, 1 = set.
@@ -93,6 +94,7 @@ export interface LottoGameJSON {
    */
   maxNumbersInTicket: Array<number>
   padding1: Array<number>
+  randomnessAccount: string
   /**
    * The jackpot winning numbers of this round/LottoGame instance.
    * 7th byte is indication if the winning numbers are set. 0 = not set, 1 = set.
@@ -149,6 +151,7 @@ export class LottoGame {
    */
   readonly maxNumbersInTicket: Array<number>
   readonly padding1: Array<number>
+  readonly randomnessAccount: PublicKey
   /**
    * The jackpot winning numbers of this round/LottoGame instance.
    * 7th byte is indication if the winning numbers are set. 0 = not set, 1 = set.
@@ -191,6 +194,7 @@ export class LottoGame {
     borsh.publicKey("jackpotWinningTicket"),
     borsh.array(borsh.u8(), 6, "maxNumbersInTicket"),
     borsh.array(borsh.u8(), 2, "padding1"),
+    borsh.publicKey("randomnessAccount"),
     types.LottoGameWinningNumbers.layout("jackpotWinningNumbers"),
     borsh.array(
       types.LottoGameWinningNumbers.layout(),
@@ -225,6 +229,7 @@ export class LottoGame {
     this.jackpotWinningTicket = fields.jackpotWinningTicket
     this.maxNumbersInTicket = fields.maxNumbersInTicket
     this.padding1 = fields.padding1
+    this.randomnessAccount = fields.randomnessAccount
     this.jackpotWinningNumbers = new types.LottoGameWinningNumbers({
       ...fields.jackpotWinningNumbers,
     })
@@ -276,11 +281,11 @@ export class LottoGame {
   }
 
   static decode(data: Buffer): LottoGame {
-    if (!data.slice(0, 8).equals(LottoGame.discriminator)) {
+    if (!data.subarray(0, 8).equals(LottoGame.discriminator)) {
       throw new Error("invalid account discriminator")
     }
-
-    const dec = LottoGame.layout.decode(data.slice(8))
+    
+    const dec = LottoGame.layout.decode(data.subarray(8))
 
     return new LottoGame({
       bump: dec.bump,
@@ -298,6 +303,7 @@ export class LottoGame {
       jackpotWinningTicket: dec.jackpotWinningTicket,
       maxNumbersInTicket: dec.maxNumbersInTicket,
       padding1: dec.padding1,
+      randomnessAccount: dec.randomnessAccount,
       jackpotWinningNumbers: types.LottoGameWinningNumbers.fromDecoded(
         dec.jackpotWinningNumbers
       ),
@@ -336,6 +342,7 @@ export class LottoGame {
       jackpotWinningTicket: this.jackpotWinningTicket.toString(),
       maxNumbersInTicket: this.maxNumbersInTicket,
       padding1: this.padding1,
+      randomnessAccount: this.randomnessAccount.toString(),
       jackpotWinningNumbers: this.jackpotWinningNumbers.toJSON(),
       tier1WinningNumbers: this.tier1WinningNumbers.map((item) =>
         item.toJSON()
@@ -366,6 +373,7 @@ export class LottoGame {
       jackpotWinningTicket: new PublicKey(obj.jackpotWinningTicket),
       maxNumbersInTicket: obj.maxNumbersInTicket,
       padding1: obj.padding1,
+      randomnessAccount: new PublicKey(obj.randomnessAccount),
       jackpotWinningNumbers: types.LottoGameWinningNumbers.fromJSON(
         obj.jackpotWinningNumbers
       ),

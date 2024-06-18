@@ -1,7 +1,7 @@
 use crate::instructions::*;
 
 pub fn test_emit_winning_numbers(
-    result: Vec<u8>,
+    result: [u8; 32],
     authority: &Pubkey,
     lotto_game: &Pubkey,
     event_emitter: &Pubkey,

@@ -2,8 +2,8 @@ use anchor_client::anchor_lang::solana_program::pubkey::Pubkey;
 use solana_sdk::pubkey;
 
 pub const USDC_MAINNET_MINT: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
-pub const USDC_DEVNET_MINT: Pubkey = pubkey!("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU");
-pub const LOLLY_MINT: Pubkey = pubkey!("1o1ohFR7M25XktNXAsbnDbvserNoFkrFLdA9916EGWw");
+pub const USDC_DEVNET_MINT: Pubkey = pubkey!("Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr");
+pub const LOLLY_MINT: Pubkey = pubkey!("1o1PXCnsydo5EMihymayXCMweSyd6UAf5SrYkExNzHc");
 
 pub const EVENT_EMITTER_IDENT: &[u8] = b"event-emitter";
 pub const LOLLY_BURN_STATE_IDENT: &[u8] = b"lolly-burn-state";

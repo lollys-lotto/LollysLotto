@@ -105,6 +105,7 @@ pub struct CrankLottoGameWinners<'info> {
     pub token_program: Program<'info, Token>,
 }
 
+#[allow(unused_variables)]
 pub fn crank_lotto_game_winners(
     ctx: Context<CrankLottoGameWinners>,
     round: u64,

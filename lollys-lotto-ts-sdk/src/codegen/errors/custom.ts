@@ -39,6 +39,7 @@ export type CustomError =
   | Tier3AmountAlreadyDisbursed
   | InvalidWinningTier
   | NoDuplicateTicketsFound
+  | OnDemandRandomnessNotResolved
 
 export class OverflowError extends Error {
   static readonly code = 6000
@@ -480,6 +481,17 @@ export class NoDuplicateTicketsFound extends Error {
   }
 }
 
+export class OnDemandRandomnessNotResolved extends Error {
+  static readonly code = 6040
+  readonly code = 6040
+  readonly name = "OnDemandRandomnessNotResolved"
+  readonly msg = "[L140] On Demad Randomness not resolved"
+
+  constructor(readonly logs?: string[]) {
+    super("6040: [L140] On Demad Randomness not resolved")
+  }
+}
+
 export function fromCode(code: number, logs?: string[]): CustomError | null {
   switch (code) {
     case 6000:
@@ -562,6 +574,8 @@ export function fromCode(code: number, logs?: string[]): CustomError | null {
       return new InvalidWinningTier(logs)
     case 6039:
       return new NoDuplicateTicketsFound(logs)
+    case 6040:
+      return new OnDemandRandomnessNotResolved(logs)
   }
 
   return null

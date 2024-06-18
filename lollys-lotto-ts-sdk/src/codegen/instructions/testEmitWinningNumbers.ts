@@ -5,7 +5,7 @@ import * as types from "../types" // eslint-disable-line @typescript-eslint/no-u
 import { PROGRAM_ID } from "../programId"
 
 export interface TestEmitWinningNumbersArgs {
-  result: Uint8Array
+  result: Array<number>
 }
 
 export interface TestEmitWinningNumbersAccounts {
@@ -14,7 +14,7 @@ export interface TestEmitWinningNumbersAccounts {
   eventEmitter: PublicKey
 }
 
-export const layout = borsh.struct([borsh.vecU8("result")])
+export const layout = borsh.struct([borsh.array(borsh.u8(), 32, "result")])
 
 export function testEmitWinningNumbers(
   args: TestEmitWinningNumbersArgs,
@@ -30,15 +30,11 @@ export function testEmitWinningNumbers(
   const buffer = Buffer.alloc(1000)
   const len = layout.encode(
     {
-      result: Buffer.from(
-        args.result.buffer,
-        args.result.byteOffset,
-        args.result.length
-      ),
+      result: args.result,
     },
     buffer
   )
-  const data = Buffer.concat([identifier, buffer]).slice(0, 8 + len)
+  const data = Buffer.concat([identifier, buffer]).subarray(0, 8 + len)
   const ix = new TransactionInstruction({ keys, programId, data })
   return ix
 }

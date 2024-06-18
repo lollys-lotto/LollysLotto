@@ -2,9 +2,9 @@ import { PublicKey } from "@solana/web3.js";
 
 export type Network = "MAINNET" | "DEVNET";
 
-const USDC_MINT_DEVNET = new PublicKey("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU");
+const USDC_MINT_DEVNET = new PublicKey("Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr");
 const USDC_MINT_MAINNET = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
-const LOLLY_MINT = new PublicKey("1o1ohFR7M25XktNXAsbnDbvserNoFkrFLdA9916EGWw");
+const LOLLY_MINT = new PublicKey("1o1PXCnsydo5EMihymayXCMweSyd6UAf5SrYkExNzHc");
 
 const EVENT_EMITTER_IDENT = "event-emitter";
 const LOLLY_BURN_STATE_IDENT = "lolly-burn-state";

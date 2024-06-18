@@ -128,9 +128,16 @@ pub enum LollysLottoError {
 
     #[msg("[L139] No Duplicate tickets found")] //0x17FB (6139)
     NoDuplicateTicketsFound,
+
+    #[msg("[L140] On Demad Randomness not resolved")] //0x17FC (6140)
+    OnDemandRandomnessNotResolved,
+
+    #[msg("[L141] Game Already Closed")] //0x17FD (6141)
+    GameAlreadyClosed,
+
 }
 
-pub const LOLLY_NUM_ERR_VARIANTS: u32 = 39;
+pub const LOLLY_NUM_ERR_VARIANTS: u32 = 41;
 
 impl LollysLottoError {
     /// For use during checked math operations,

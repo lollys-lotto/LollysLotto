@@ -229,7 +229,7 @@ pub struct CrankLottoGameClosedEvent {
 pub struct ProcessWinningNumbersEvent {
     pub lotto_game: Pubkey,
     pub round: u64,
-    pub randomness: Vec<u8>,
+    pub randomness: [u8; 32],
     pub winning_numbers: [u8; 6],
     pub winning_numbers_updated_index: [i64; 4],
 }
@@ -240,7 +240,7 @@ pub struct ProcessWinningNumbersEvent {
 pub struct DuplicateWinningNumbersEvent {
     pub lotto_game: Pubkey,
     pub round: u64,
-    pub randomness: Vec<u8>,
+    pub randomness: [u8; 32],
     pub duplicate_numbers: [u8; 6],
     pub duplicate_number_detected_index: [i64; 4],
 }
@@ -272,7 +272,7 @@ pub struct BuyLottoTicketEvent {
     pub tickets_sold: u64,
     pub round: u64,
     pub ticket_number: u64,
-    pub numbers: LottoTicketNumbers,
+    pub lotto_ticket_numbers: LottoTicketNumbers,
     pub ticket_price: u64,
     pub buy_date: i64,
 }

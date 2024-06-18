@@ -165,11 +165,11 @@ export class LottoTicket {
   }
 
   static decode(data: Buffer): LottoTicket {
-    if (!data.slice(0, 8).equals(LottoTicket.discriminator)) {
+    if (!data.subarray(0, 8).equals(LottoTicket.discriminator)) {
       throw new Error("invalid account discriminator")
     }
 
-    const dec = LottoTicket.layout.decode(data.slice(8))
+    const dec = LottoTicket.layout.decode(data.subarray(8))
 
     return new LottoTicket({
       user: dec.user,

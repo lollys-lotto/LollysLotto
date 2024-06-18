@@ -6,7 +6,7 @@ import * as borsh from "@coral-xyz/borsh"
 export interface DuplicateWinningNumbersEventFields {
   lottoGame: PublicKey
   round: BN
-  randomness: Uint8Array
+  randomness: Array<number>
   duplicateNumbers: Array<number>
   duplicateNumberDetectedIndex: Array<BN>
 }
@@ -23,7 +23,7 @@ export interface DuplicateWinningNumbersEventJSON {
 export class DuplicateWinningNumbersEvent {
   readonly lottoGame: PublicKey
   readonly round: BN
-  readonly randomness: Uint8Array
+  readonly randomness: Array<number>
   readonly duplicateNumbers: Array<number>
   readonly duplicateNumberDetectedIndex: Array<BN>
 
@@ -40,7 +40,7 @@ export class DuplicateWinningNumbersEvent {
       [
         borsh.publicKey("lottoGame"),
         borsh.u64("round"),
-        borsh.vecU8("randomness"),
+        borsh.array(borsh.u8(), 32, "randomness"),
         borsh.array(borsh.u8(), 6, "duplicateNumbers"),
         borsh.array(borsh.i64(), 4, "duplicateNumberDetectedIndex"),
       ],
@@ -53,11 +53,7 @@ export class DuplicateWinningNumbersEvent {
     return new DuplicateWinningNumbersEvent({
       lottoGame: obj.lottoGame,
       round: obj.round,
-      randomness: new Uint8Array(
-        obj.randomness.buffer,
-        obj.randomness.byteOffset,
-        obj.randomness.length
-      ),
+      randomness: obj.randomness,
       duplicateNumbers: obj.duplicateNumbers,
       duplicateNumberDetectedIndex: obj.duplicateNumberDetectedIndex,
     })
@@ -67,11 +63,7 @@ export class DuplicateWinningNumbersEvent {
     return {
       lottoGame: fields.lottoGame,
       round: fields.round,
-      randomness: Buffer.from(
-        fields.randomness.buffer,
-        fields.randomness.byteOffset,
-        fields.randomness.length
-      ),
+      randomness: fields.randomness,
       duplicateNumbers: fields.duplicateNumbers,
       duplicateNumberDetectedIndex: fields.duplicateNumberDetectedIndex,
     }
@@ -81,7 +73,7 @@ export class DuplicateWinningNumbersEvent {
     return {
       lottoGame: this.lottoGame.toString(),
       round: this.round.toString(),
-      randomness: Array.from(this.randomness.values()),
+      randomness: this.randomness,
       duplicateNumbers: this.duplicateNumbers,
       duplicateNumberDetectedIndex: this.duplicateNumberDetectedIndex.map(
         (item) => item.toString()
@@ -95,7 +87,7 @@ export class DuplicateWinningNumbersEvent {
     return new DuplicateWinningNumbersEvent({
       lottoGame: new PublicKey(obj.lottoGame),
       round: new BN(obj.round),
-      randomness: Uint8Array.from(obj.randomness),
+      randomness: obj.randomness,
       duplicateNumbers: obj.duplicateNumbers,
       duplicateNumberDetectedIndex: obj.duplicateNumberDetectedIndex.map(
         (item) => new BN(item)

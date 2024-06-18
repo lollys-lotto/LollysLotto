@@ -74,11 +74,11 @@ export class LollyBurnState {
   }
 
   static decode(data: Buffer): LollyBurnState {
-    if (!data.slice(0, 8).equals(LollyBurnState.discriminator)) {
+    if (!data.subarray(0, 8).equals(LollyBurnState.discriminator)) {
       throw new Error("invalid account discriminator")
     }
 
-    const dec = LollyBurnState.layout.decode(data.slice(8))
+    const dec = LollyBurnState.layout.decode(data.subarray(8))
 
     return new LollyBurnState({
       bump: dec.bump,

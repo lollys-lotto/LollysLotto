@@ -42,6 +42,7 @@ pub struct LottoGame {
     /// Ticket has only 6 numbers. But the last two bytes are reserved for padding.
     pub max_numbers_in_ticket: [u8; 6], //6
     pub _padding1: [u8; 2], //2
+    pub randomness_account: Pubkey, // Reference to the Switchboard randomness account
     /// The jackpot winning numbers of this round/LottoGame instance.
     /// 7th byte is indication if the winning numbers are set. 0 = not set, 1 = set.
     /// 8th byte is an indication if jackpot_winning_amount is disbursed or not (0 = not disbursed, 1 = disbursed).
@@ -59,7 +60,7 @@ pub struct LottoGame {
 
 impl LottoGame {
     pub const SIZE_V1: usize =
-        1 + 1 + 2 + 4 + 32 + 8 + 8 + 8 + 8 + 8 + 32 + 32 + 32 + 6 + 2 + 8 + 80 + 800 + 8000; //9072
+        1 + 1 + 2 + 4 + 32 + 8 + 8 + 8 + 8 + 8 + 32 + 32 + 32 + 6 + 2 + 8 + 8 + 80 + 800 + 8000; //9080
 
     pub const JACKPOT_WINNERS_V1: usize = 1;
     pub const MAX_TIER_1_WINNERS_V1: usize = 10;

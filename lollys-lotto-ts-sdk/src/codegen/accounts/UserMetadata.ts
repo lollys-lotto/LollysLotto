@@ -109,11 +109,11 @@ export class UserMetadata {
   }
 
   static decode(data: Buffer): UserMetadata {
-    if (!data.slice(0, 8).equals(UserMetadata.discriminator)) {
+    if (!data.subarray(0, 8).equals(UserMetadata.discriminator)) {
       throw new Error("invalid account discriminator")
     }
 
-    const dec = UserMetadata.layout.decode(data.slice(8))
+    const dec = UserMetadata.layout.decode(data.subarray(8))
 
     return new UserMetadata({
       bump: dec.bump,

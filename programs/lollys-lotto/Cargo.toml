@@ -26,5 +26,5 @@ solana-program = {workspace = true}
 solana-randomness-service = {workspace = true}
 switchboard-solana = {workspace = true}
 # solana-address-lookup-table-program = {workspace = true}
-# switchboard-on-demand = {workspace = true}
+switchboard-on-demand = {workspace = true}
 toml_edit = {workspace = true}

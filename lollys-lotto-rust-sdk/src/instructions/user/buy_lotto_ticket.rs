@@ -4,7 +4,7 @@ use crate::instructions::*;
 
 pub fn buy_lotto_ticket(
     round: u64,
-    numbers: LottoTicketNumbers,
+    lotto_ticket_numbers: LottoTicketNumbers,
     authority: &Pubkey,
     user: &Pubkey,
     user_metadata: &Pubkey,
@@ -15,7 +15,7 @@ pub fn buy_lotto_ticket(
     lotto_ticket: &Pubkey,
     event_emitter: &Pubkey,
 ) -> Instruction {
-    let data = lollys_lotto::instruction::BuyLottoTicket { round, numbers }.data();
+    let data = lollys_lotto::instruction::BuyLottoTicket { round, lotto_ticket_numbers }.data();
 
     let accounts = lollys_lotto::accounts::BuyLottoTicket {
         authority: *authority,

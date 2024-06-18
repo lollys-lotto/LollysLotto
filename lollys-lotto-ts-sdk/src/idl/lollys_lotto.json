@@ -355,6 +355,10 @@
           "type": "u64"
         },
         {
+          "name": "randomnessAccount",
+          "type": "publicKey"
+        },
+        {
           "name": "roundName",
           "type": "string"
         }
@@ -649,26 +653,21 @@
       "name": "processWinningNumbers",
       "accounts": [
         {
-          "name": "randomnessState",
+          "name": "authority",
           "isMut": false,
-          "isSigner": true,
+          "isSigner": false,
           "docs": [
             "We need to make sure the randomness service signed this requests so it can only be invoked by a PDA and not a user."
           ]
         },
         {
-          "name": "request",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "lottoGame",
           "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "randomnessAccountData",
+          "isMut": false,
           "isSigner": false
         },
         {
@@ -677,12 +676,7 @@
           "isSigner": false
         }
       ],
-      "args": [
-        {
-          "name": "result",
-          "type": "bytes"
-        }
-      ]
+      "args": []
     },
     {
       "name": "requestWinningNumbers",
@@ -780,6 +774,40 @@
       "args": []
     },
     {
+      "name": "requestWinningNumbersV2",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "lottoGame",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "randomnessAccountData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "eventEmitter",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The Solana System program. Used to allocate space on-chain for the randomness_request account."
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "testEmitWinningNumbers",
       "accounts": [
         {
@@ -801,7 +829,12 @@
       "args": [
         {
           "name": "result",
-          "type": "bytes"
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
         }
       ]
     },
@@ -875,7 +908,7 @@
           "type": "u64"
         },
         {
-          "name": "numbers",
+          "name": "lottoTicketNumbers",
           "type": {
             "defined": "LottoTicketNumbers"
           }
@@ -1239,6 +1272,10 @@
                 2
               ]
             }
+          },
+          {
+            "name": "randomnessAccount",
+            "type": "publicKey"
           },
           {
             "name": "jackpotWinningNumbers",
@@ -1774,7 +1811,12 @@
           },
           {
             "name": "randomness",
-            "type": "bytes"
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
           },
           {
             "name": "winningNumbers",
@@ -1815,7 +1857,12 @@
           },
           {
             "name": "randomness",
-            "type": "bytes"
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
           },
           {
             "name": "duplicateNumbers",
@@ -1917,7 +1964,7 @@
             "type": "u64"
           },
           {
-            "name": "numbers",
+            "name": "lottoTicketNumbers",
             "type": {
               "defined": "LottoTicketNumbers"
             }
@@ -2836,6 +2883,14 @@
       "code": 6039,
       "name": "NoDuplicateTicketsFound",
       "msg": "[L139] No Duplicate tickets found"
+    },
+    {
+      "code": 6040,
+      "name": "OnDemandRandomnessNotResolved",
+      "msg": "[L140] On Demad Randomness not resolved"
     }
-  ]
+  ],
+  "metadata": {
+    "address": "13j1mUzsVqhSEiV3QP2oF2a4AUEQuhmQcjdF8nBrG1o1"
+  }
 }

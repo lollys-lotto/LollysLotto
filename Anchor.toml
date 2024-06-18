@@ -5,18 +5,23 @@ seeds = false
 skip-lint = false
 
 [programs.devnet]
-lollys_lotto = "EQHT3TFXS3hBMzSpJiKb84sHE7iBXnYBpWvQTU8r91m6"
+lollys_lotto = "13j1mUzsVqhSEiV3QP2oF2a4AUEQuhmQcjdF8nBrG1o1"
+# idl_account = "7tHGp4BytfcMdTJZTuYAAxQfb4qVCtLvQbLmaiCLmBo1"
+# idl_account = "H2WvrVuAB847dfnnLvdKqo3QfHpVCDmjZaYdzyeSbNjt"
+# idl_account = "8aLVy29o6rWaUnLQR8guSfkceqTPrh29rg4vNuzFxTPG"
 
-[programs.localnet]
-lollys_lotto = "EQHT3TFXS3hBMzSpJiKb84sHE7iBXnYBpWvQTU8r91m6"
+
+# [programs.localnet]
+# lollys_lotto = "13j1mUzsVqhSEiV3QP2oF2a4AUEQuhmQcjdF8nBrG1o1"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
 # cluster = "https://devnet.helius-rpc.com/?api-key=7c45b0ae-2e65-4ef0-b68c-defcf9f5b581"
-cluster = "http://localhost:8899"
-wallet = "/Users/0xabstracted/Lolly/LollyLottoTS/.keys/1o1ohFR7M25XktNXAsbnDbvserNoFkrFLdA9916EGWw.json"
+cluster = "https://devnet.helius-rpc.com/?api-key=2f618d7a-ecef-4d8a-9c11-cf43b9c27d88"
+# cluster = "http://localhost:8899"
+wallet = "/Users/0xabstracted/Lolly/lollys-lotto/.keys/lollys_lotto_authority.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"

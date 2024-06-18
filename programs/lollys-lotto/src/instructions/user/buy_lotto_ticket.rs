@@ -15,7 +15,7 @@ use crate::{
 };
 
 #[derive(Accounts)]
-#[instruction(round: u64, numbers: [u8; 6])]
+#[instruction(round: u64, lotto_ticket_numbers: LottoTicketNumbers)]
 pub struct BuyLottoTicket<'info> {
     /// CHECK: Authority of the LottoGame instance
     pub authority: AccountInfo<'info>,
@@ -74,12 +74,12 @@ pub struct BuyLottoTicket<'info> {
             LottoTicket::IDENT,
             lotto_game.key().as_ref(),
             user_metadata.key().as_ref(),
-            numbers[0].to_le_bytes().as_ref(),
-            numbers[1].to_le_bytes().as_ref(),
-            numbers[2].to_le_bytes().as_ref(),
-            numbers[3].to_le_bytes().as_ref(),
-            numbers[4].to_le_bytes().as_ref(),
-            numbers[5].to_le_bytes().as_ref(),
+            lotto_ticket_numbers.number1.to_le_bytes().as_ref(),
+            lotto_ticket_numbers.number2.to_le_bytes().as_ref(),
+            lotto_ticket_numbers.number3.to_le_bytes().as_ref(),
+            lotto_ticket_numbers.number4.to_le_bytes().as_ref(),
+            lotto_ticket_numbers.number5.to_le_bytes().as_ref(),
+            lotto_ticket_numbers.jackpot_number.to_le_bytes().as_ref(),
         ],
         bump
     )]
@@ -94,7 +94,7 @@ pub struct BuyLottoTicket<'info> {
 }
 
 impl<'info> BuyLottoTicket<'info> {
-    pub fn process(&mut self, round: u64, numbers: LottoTicketNumbers) -> Result<()> {
+    pub fn process(&mut self, round: u64, lotto_ticket_numbers: LottoTicketNumbers) -> Result<()> {
         let lotto_game = &mut *self.lotto_game.load_mut()?;
         let lotto_ticket = &mut self.lotto_ticket;
         let user_usdc_token_account = &self.user_usdc_token_account;
@@ -126,7 +126,7 @@ impl<'info> BuyLottoTicket<'info> {
         }
 
         // check the numbers with MAX_NUMBERS_IN_TICKET
-        if !validate_for_max_min_numbers(numbers) {
+        if !validate_for_max_min_numbers(lotto_ticket_numbers) {
             return Err(LollysLottoError::InvalidNumbersInTicket.into());
         }
         // Transfer USDC from user to LottoGameVault
@@ -146,7 +146,7 @@ impl<'info> BuyLottoTicket<'info> {
         lotto_ticket.ticket_number = lotto_game.tickets_sold;
         lotto_ticket.lotto_game = self.lotto_game.key();
         lotto_ticket.round = round;
-        lotto_ticket.numbers = numbers;
+        lotto_ticket.numbers = lotto_ticket_numbers;
         lotto_ticket.ticket_price = lotto_game.ticket_price;
         lotto_ticket.buy_date = current_time;
         lotto_ticket.check_date = 0;
@@ -173,7 +173,7 @@ impl<'info> BuyLottoTicket<'info> {
                 tickets_sold: lotto_game.tickets_sold,
                 round,
                 ticket_number: lotto_ticket.ticket_number,
-                numbers,
+                lotto_ticket_numbers,
                 ticket_price: lotto_game.ticket_price,
                 buy_date: lotto_ticket.buy_date,
             }),

@@ -98,6 +98,7 @@ pub struct CrankTransferWinningAmountToUserRewardsVault<'info> {
     pub token_program: Program<'info, Token>,
 }
 
+#[allow(unused_variables)]
 pub fn crank_transfer_winning_amount_to_user_rewards_vault(
     ctx: Context<CrankTransferWinningAmountToUserRewardsVault>,
     round: u64,
